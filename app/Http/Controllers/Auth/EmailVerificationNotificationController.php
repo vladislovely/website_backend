@@ -7,16 +7,17 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class EmailVerificationNotificationController extends Controller
 {
     /**
      * Send a new email verification notification.
      */
-    public function store(Request $request): JsonResponse|RedirectResponse
+    public function store(Request $request): JsonResponse|Response
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(RouteServiceProvider::HOME);
+            return response()->noContent();
         }
 
         $request->user()->sendEmailVerificationNotification();

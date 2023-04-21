@@ -63,4 +63,12 @@ class User extends Authenticatable
     public function isAdministrator(): bool {
         return $this->email = 'zvoryginvy@sibedge.com';
     }
+
+    public function hasAbility($ability): bool
+    {
+        return $this->roles()->whereHas('abilities', function ($ability) {
+            $ability->where('name', 'view');
+        })
+        ->exists();
+    }
 }

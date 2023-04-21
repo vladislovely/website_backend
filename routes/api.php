@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\VacancyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,32 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('api')->middleware(['auth:sanctum'])->group(static function () {
+    Route::get('/vacancies', [VacancyController::class, 'index'])
+         ->middleware(['ability:view-vacancies'])
+         ->name('vacancies');
+
+    Route::get('/vacancies/{id}', [VacancyController::class, 'show'])
+         ->middleware(['ability:view-vacancy'])
+         ->name('vacancy');
+
+    Route::post('/vacancies', [VacancyController::class, 'store'])
+         ->middleware(['ability:create-vacancy'])
+         ->name('create-vacancy');
+
+    Route::match(['put', 'patch'], '/vacancies/{id}', [VacancyController::class, 'update'])
+        ->middleware(['ability:update-vacancy'])
+        ->name('update-vacancy');
+
+    Route::post('/vacancies/{id}/delete', [VacancyController::class, 'delete'])
+         ->middleware(['ability:delete-vacancy'])
+         ->name('delete-vacancy');
+
+    Route::post('/vacancies/{id}/restore', [VacancyController::class, 'restore'])
+         ->middleware(['ability:restore-vacancy'])
+         ->name('restore-vacancy');
+
+    Route::delete('/vacancies/{id}', [VacancyController::class, 'destroy'])
+         ->middleware(['ability:permanently-delete-vacancy'])
+         ->name('permanently-delete-vacancy');
 });

@@ -18,8 +18,15 @@ class AbilitySeeder extends Seeder
             ['name'=> 'update-user'],
             ['name'=> 'view-user'],
             ['name'=> 'delete-user'],
+            ['name'=> 'view-vacancies'],
+            ['name'=> 'view-vacancy'],
+            ['name'=> 'create-vacancy'],
+            ['name'=> 'update-vacancy'],
+            ['name'=> 'delete-vacancy'],
+            ['name'=> 'restore-vacancy'],
+            ['name'=> 'permanently-delete-vacancy'],
         ];
 
-        DB::table('abilities')->insert($data);
+        DB::table('abilities')->insertOrIgnore($data);
     }
 }
