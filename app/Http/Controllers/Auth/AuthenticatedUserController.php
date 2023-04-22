@@ -4,17 +4,19 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
-class AuthenticatedSessionController extends Controller
+class AuthenticatedUserController extends Controller
 {
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
         $request->authenticate();
 
@@ -32,18 +34,19 @@ class AuthenticatedSessionController extends Controller
         $token = $request->user()->createToken('apiToken', $listAbilities)->plainTextToken;
 
         return response()->json([
-            'id' => $request->user()->id,
-            'username' => $request->user()->name,
-            'email' => $request->user()->email,
-            'status' => $request->user()->status,
-            'token' => $token,
-        ]);
+                                    'id' => $request->user()->id,
+                                    'username' => $request->user()->name,
+                                    'email' => $request->user()->email,
+                                    'status' => $request->user()->status,
+                                    'token' => $token,
+                                    'is_super_admin' => $request->user()->isAdministrator()
+                                ]);
     }
 
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): Response
+    public function logout(Request $request): Response
     {
         Auth::guard('web')->logout();
 

@@ -26,7 +26,7 @@ class AbilitySeeder extends Seeder
             ['name'=> 'create-vacancy'],
             ['name'=> 'update-vacancy'],
             ['name'=> 'delete-vacancy'],
-            ['name'=> 'restore-vacancy'],
+            ['name'=> 'recovery-vacancy'],
             ['name'=> 'permanently-delete-vacancy'],
         ];
 

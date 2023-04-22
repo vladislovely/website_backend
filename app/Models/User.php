@@ -30,6 +30,7 @@ class User extends Authenticatable
         'view-vacancies',
         'view-vacancy',
         'create-vacancy',
+        'update-vacancy',
     ];
     /**
      * The attributes that are mass assignable.
@@ -68,6 +69,6 @@ class User extends Authenticatable
     }
 
     public function isAdministrator(): bool {
-        return $this->email = self::ADMIN_MAIL;
+        return $this->email === self::ADMIN_MAIL;
     }
 }

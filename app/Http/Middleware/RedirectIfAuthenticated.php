@@ -36,12 +36,12 @@ class RedirectIfAuthenticated
                 $token = $request->user()->createToken('apiToken', $listAbilities);
 
                 return response()->json([
-                    'id' => $request->user()->id,
-                    'username' => $request->user()->name,
-                    'email' => $request->user()->email,
-                    'status' => $request->user()->status,
-                    'token' => $token->plainTextToken,
-                ]);
+                                            'id' => $request->user()->id,
+                                            'username' => $request->user()->name,
+                                            'email' => $request->user()->email,
+                                            'status' => $request->user()->status,
+                                            'token' => $token->plainTextToken,
+                                        ]);
             }
         }
 

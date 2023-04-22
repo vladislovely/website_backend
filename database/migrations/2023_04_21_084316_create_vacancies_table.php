@@ -35,10 +35,7 @@ return new class extends Migration
             $table->json('type_of_employment', 30);
             $table->json('work_experience', 30);
             $table->json('salary')->nullable();
-            $table->enum('status', [
-                'STATUS_ACTIVE',
-                'STATUS_DELETED',
-            ])->default('STATUS_ACTIVE');
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');

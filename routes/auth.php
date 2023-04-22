@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\AuthenticatedUserController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -13,7 +13,7 @@ Route::prefix('api')->group(static function () {
         ->middleware(['guest', 'ability:create-user'])
         ->name('register');
 
-    Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+    Route::post('/login', [AuthenticatedUserController::class, 'login'])
         ->middleware('guest')
         ->name('login');
 
@@ -26,14 +26,14 @@ Route::prefix('api')->group(static function () {
         ->name('password.store');
 
     Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-        ->middleware(['auth', 'signed', 'throttle:6,1'])
+        ->middleware(['auth:sanctum', 'signed', 'throttle:6,1'])
         ->name('verification.verify');
 
     Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware(['auth', 'throttle:6,1'])
+        ->middleware(['auth:sanctum', 'throttle:6,1'])
         ->name('verification.send');
 
-    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->middleware('auth')
+    Route::post('/logout', [AuthenticatedUserController::class, 'logout'])
+        ->middleware('guest')
         ->name('logout');
 });

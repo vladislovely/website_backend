@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Vacancy;
+use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
 class VacancyPolicy
@@ -48,7 +49,7 @@ class VacancyPolicy
      */
     public function update(User $user, Vacancy $vacancy): bool
     {
-        return $user->id === $vacancy->created_by || $user->tokenCan('update-vacancy');
+        return $user->id === $vacancy->created_by && $user->tokenCan('update-vacancy');
     }
 
     /**
@@ -56,7 +57,14 @@ class VacancyPolicy
      */
     public function delete(User $user, Vacancy $vacancy): bool
     {
-        return $user->id === $vacancy->created_by || $user->tokenCan('delete-vacancy');
+        \Log::error('police delete', [$vacancy]);
+        \Log::error('can by id', [$user->id === $vacancy->created_by]);
+        \Log::error('user', [$user]);
+        \Log::error('can by token permanently-delete-vacancy', [$user->tokenCan('permanently-delete-vacancy')]);
+        \Log::error('can by token delete', [$user->tokenCan('delete-vacancy')]);
+        \Log::error('can by token restore', [$user->tokenCan('restore-vacancy')]);
+
+        return $user->id === $vacancy->created_by && $user->tokenCan('delete-vacancy');
     }
 
     /**

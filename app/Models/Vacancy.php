@@ -5,6 +5,7 @@ namespace App\Models;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * This is the model class for table "vacancies".
@@ -32,15 +33,15 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $type_of_employment
  * @property string $work_experience
  * @property array|null $salary
- * @property string $status
  * @property \DateTime $created_at
  * @property \DateTime $updated_at
+ * @property \DateTime $deleted_at
  */
 class Vacancy extends Model
 {
     protected $dateFormat = 'Y-m-d H:i:s';
 
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -84,9 +85,6 @@ class Vacancy extends Model
         'remote_format'      => 'bool',
     ];
 
-    protected $attributes = [
-        'status' => 'STATUS_ACTIVE'
-    ];
 
     protected function serializeDate(DateTimeInterface $date): string
     {
