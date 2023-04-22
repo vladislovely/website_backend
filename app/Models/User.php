@@ -24,6 +24,13 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    public const ADMIN_MAIL = 'zvoryginvy@sibedge.com';
+    public const DEFAULT_ABILITIES = [
+        'create-user',
+        'view-vacancies',
+        'view-vacancy',
+        'create-vacancy',
+    ];
     /**
      * The attributes that are mass assignable.
      *
@@ -61,6 +68,6 @@ class User extends Authenticatable
     }
 
     public function isAdministrator(): bool {
-        return $this->email = 'zvoryginvy@sibedge.com';
+        return $this->email = self::ADMIN_MAIL;
     }
 }

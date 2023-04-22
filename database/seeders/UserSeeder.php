@@ -15,26 +15,31 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = new User();
-        $user->name = 'Administrator';
-        $user->email = 'zvoryginvy@sibedge.com';
-        $user->password = Hash::make('qwerty132456');
-        $user->email_verified_at = now();
-        $user->status = 'STATUS_ACTIVE';
-        $user->created_at = now();
-        $user->updated_at = now();
+        DB::table('users')->insertOrIgnore(
+            [
+                'name'              => 'Administrator',
+                'email'             => User::ADMIN_MAIL,
+                'password'          => Hash::make('qwerty132456'),
+                'email_verified_at' => now(),
+                'status'            => 'STATUS_ACTIVE',
+                'created_at'        => now(),
+                'updated_at'        => now(),
+            ]
+        );
 
-        if ($user->save()) {
-            $abilities = Ability::all();
-            $insertList = [];
+        $user = User::select('id')->where(['email' => User::ADMIN_MAIL])->first();
 
-            foreach ($abilities as $ability) {
-                if ($ability instanceof Ability) {
-                    $insertList[] = ['user_id' => $user->id, 'ability_id' => $ability->id, 'created_at' => now(), 'updated_at' => now()];
-                }
+        $abilities  = Ability::all();
+        $insertList = [];
+
+        foreach ($abilities as $ability) {
+            if ($ability instanceof Ability && $user instanceof User) {
+                $insertList[] = ['user_id' => $user->id, 'ability_id' => $ability->id, 'created_at' => now(), 'updated_at' => now()];
             }
+        }
 
-            DB::table('user_abilities')->insert($insertList);
+        if (!empty($insertList)) {
+            DB::table('user_abilities')->insertOrIgnore($insertList);
         }
     }
 }

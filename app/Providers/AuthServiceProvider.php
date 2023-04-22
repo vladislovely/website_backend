@@ -22,6 +22,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        User::class => UserPolicy::class,
         Vacancy::class => VacancyPolicy::class,
     ];
 
@@ -49,6 +50,14 @@ class AuthServiceProvider extends ServiceProvider
 
             return config('app.frontend_url') . "/admin/verify-email/{$params['id']}/{$params['hash']}?expires={$params['expires']}&signature={$signature}";
         });
+
+        Gate::define('view-users', [UserPolicy::class, 'viewAny']);
+        Gate::define('view-user', [UserPolicy::class, 'view']);
+        Gate::define('create-user', [UserPolicy::class, 'create']);
+        Gate::define('update-user', [UserPolicy::class, 'update']);
+        Gate::define('delete-user', [UserPolicy::class, 'delete']);
+        Gate::define('restore-user', [UserPolicy::class, 'restore']);
+        Gate::define('permanently-delete-user', [UserPolicy::class, 'forceDelete']);
 
         Gate::define('view-vacancies', [VacancyPolicy::class, 'viewAny']);
         Gate::define('view-vacancy', [VacancyPolicy::class, 'view']);

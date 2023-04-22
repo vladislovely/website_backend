@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->middleware(['auth:sanctum'])->group(static function () {
     Route::get('/vacancies', [VacancyController::class, 'index'])
-         ->middleware(['auth:sanctum', 'ability:view-vacancies'])
+         ->middleware(['ability:view-vacancies'])
          ->name('vacancies');
 
     Route::get('/vacancies/{id}', [VacancyController::class, 'show'])
@@ -28,7 +28,7 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(static function () {
          ->middleware(['auth:sanctum', 'ability:create-vacancy'])
          ->name('create-vacancy');
 
-    Route::match(['put', 'patch'], '/vacancies/{id}', [VacancyController::class, 'update'])
+    Route::match(['put', 'patch'], '/vacancies/{id}', [VacancyController::class, 'edit'])
         ->middleware(['auth:sanctum', 'ability:update-vacancy'])
         ->name('update-vacancy');
 

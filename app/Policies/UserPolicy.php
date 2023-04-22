@@ -8,11 +8,22 @@ use Illuminate\Auth\Access\Response;
 class UserPolicy
 {
     /**
+     * Perform pre-authorization checks.
+     */
+    public function before(User $user, string $ability): bool|null
+    {
+        if ($user->isAdministrator()) {
+            return true;
+        }
+
+        return null;
+    }
+    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->tokenCan('view-users');
     }
 
     /**
@@ -20,7 +31,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return true;
+        return $user->id === $model->id || $user->tokenCan('view-user');
     }
 
     /**
@@ -28,7 +39,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->tokenCan('create-user');
     }
 
     /**
@@ -36,7 +47,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->id === $model->id || $user->isAdministrator();
+        return $user->id === $model->id || $user->tokenCan('update-user');
     }
 
     /**
@@ -44,7 +55,7 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $user->id === $model->id || $user->isAdministrator();
+        return $user->tokenCan('delete-user');
     }
 
     /**
@@ -52,7 +63,7 @@ class UserPolicy
      */
     public function restore(User $user, User $model): bool
     {
-        return $user->isAdministrator();
+        return $user->tokenCan('restore-user');
     }
 
     /**
@@ -60,6 +71,6 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
-        return $user->isAdministrator();
+        return $user->tokenCan('permanently-delete-user');
     }
 }

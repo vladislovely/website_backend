@@ -39,7 +39,7 @@ class RegisteredUserController extends Controller
         ]);
 
         if ($user) {
-            $abilities = Ability::all()->whereIn('name', ['view-user', 'update-user']);
+            $abilities = Ability::all()->whereIn('name', User::DEFAULT_ABILITIES);
 
             $abilitiesList = [];
             foreach ($abilities as $ability) {

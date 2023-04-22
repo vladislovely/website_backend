@@ -84,6 +84,10 @@ class Vacancy extends Model
         'remote_format'      => 'bool',
     ];
 
+    protected $attributes = [
+        'status' => 'STATUS_ACTIVE'
+    ];
+
     protected function serializeDate(DateTimeInterface $date): string
     {
         return $date->format('Y-m-d H:i:s');

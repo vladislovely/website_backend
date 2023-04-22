@@ -14,10 +14,13 @@ class AbilitySeeder extends Seeder
     public function run(): void
     {
         $data = [
+            ['name'=> 'view-users'],
+            ['name'=> 'view-user'],
             ['name'=> 'create-user'],
             ['name'=> 'update-user'],
-            ['name'=> 'view-user'],
             ['name'=> 'delete-user'],
+            ['name'=> 'restore-user'],
+            ['name'=> 'permanently-delete-user'],
             ['name'=> 'view-vacancies'],
             ['name'=> 'view-vacancy'],
             ['name'=> 'create-vacancy'],

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->group(static function () {
     Route::post('/register', [RegisteredUserController::class, 'store'])
-        ->middleware('guest')
+        ->middleware(['guest', 'ability:create-user'])
         ->name('register');
 
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
