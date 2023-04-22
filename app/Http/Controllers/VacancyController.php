@@ -11,18 +11,22 @@ use Illuminate\Http\Response;
 class VacancyController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Get all vacancies
      */
     public function index(): JsonResponse
     {
+        $this->authorize('view-vacancies', Vacancy::class);
+
         return response()->json(Vacancy::all()->toArray());
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create new vacancy
      */
     public function store(Request $request): Response|JsonResponse
     {
+        $this->authorize('create-vacancy', Vacancy::class);
+
         $request->validate(
             [
                 'title'              => ['required', 'max:100', 'unique:vacancies,title'],
@@ -83,34 +87,50 @@ class VacancyController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Show specific vacancy
      */
     public function show(Vacancy $vacancy)
     {
-        //
+        $this->authorize('view-vacancy', Vacancy::class);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Edit specific vacancy
      */
     public function edit(Vacancy $vacancy)
     {
-        //
+        $this->authorize('update-vacancy', Vacancy::class);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified vacancy
      */
     public function update(Request $request, Vacancy $vacancy)
     {
-        //
+        $this->authorize('update-vacancy', Vacancy::class);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Permanently delete vacancy
      */
     public function destroy(Vacancy $vacancy)
     {
-        //
+        $this->authorize('permanently-delete-vacancy', Vacancy::class);
+    }
+
+    /**
+     * Restore vacancy throw change status
+     */
+    public function restore(Vacancy $vacancy)
+    {
+        $this->authorize('restore-vacancy', Vacancy::class);
+    }
+
+    /**
+     * Delete vacancy throw change status
+     */
+    public function delete(Vacancy $vacancy)
+    {
+        $this->authorize('delete-vacancy', Vacancy::class);
     }
 }

@@ -24,7 +24,7 @@ class VacancyPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAbility('view-vacancies');
+        return $user->tokenCan('view-vacancies');
     }
 
     /**
@@ -32,7 +32,7 @@ class VacancyPolicy
      */
     public function view(User $user, Vacancy $vacancy): bool
     {
-        return $user->hasAbility('view-vacancy');
+        return $user->tokenCan('view-vacancy');
     }
 
     /**
@@ -40,7 +40,7 @@ class VacancyPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAbility('create-vacancy');
+        return $user->tokenCan('create-vacancy');
     }
 
     /**
@@ -48,7 +48,7 @@ class VacancyPolicy
      */
     public function update(User $user, Vacancy $vacancy): bool
     {
-        return $user->id === $vacancy->created_by || $user->hasAbility('update-vacancy');
+        return $user->id === $vacancy->created_by || $user->tokenCan('update-vacancy');
     }
 
     /**
@@ -56,7 +56,7 @@ class VacancyPolicy
      */
     public function delete(User $user, Vacancy $vacancy): bool
     {
-        return $user->id === $vacancy->created_by || $user->hasAbility('delete-vacancy');
+        return $user->id === $vacancy->created_by || $user->tokenCan('delete-vacancy');
     }
 
     /**
@@ -64,7 +64,7 @@ class VacancyPolicy
      */
     public function restore(User $user, Vacancy $vacancy): bool
     {
-        return $user->hasAbility('restore-vacancy');
+        return $user->tokenCan('restore-vacancy');
     }
 
     /**
@@ -72,6 +72,6 @@ class VacancyPolicy
      */
     public function forceDelete(User $user, Vacancy $vacancy): bool
     {
-        return $user->hasAbility('permanently-delete-vacancy');
+        return $user->tokenCan('permanently-delete-vacancy');
     }
 }
