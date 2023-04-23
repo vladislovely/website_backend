@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class AuthenticatedUserController extends Controller
@@ -18,29 +19,49 @@ class AuthenticatedUserController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $request->authenticate();
+        Log::error('login');
+        $request->validate(
+            [
+                'email' => ['required', 'string', 'email'],
+                'password' => ['required', 'string'],
+            ]
+        );
 
-        $request->session()->regenerate();
+        $user = User::where('email', $request->post('email'))->first();
 
-        $request->user()->tokens()->delete();
+        if (!$user) {
+            return response()->json(
+                [
+                    'message' => 'Bad credentials'
+                ], 401
+            );
+        }
 
-        $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
-        $listAbilities = [];
+        $request->authenticate($user);
+
+        $modelAbilities = $user->abilities()->orderBy('name')->get(['name'])->toArray();
+        $listAbilities  = [];
 
         foreach ($modelAbilities as $ability) {
             $listAbilities[] = $ability['name'];
         }
 
-        $token = $request->user()->createToken('apiToken', $listAbilities)->plainTextToken;
+        if (!empty($user->tokens)) {
+            $user->tokens()->delete();
+        }
 
-        return response()->json([
-                                    'id' => $request->user()->id,
-                                    'username' => $request->user()->name,
-                                    'email' => $request->user()->email,
-                                    'status' => $request->user()->status,
-                                    'token' => $token,
-                                    'is_super_admin' => $request->user()->isAdministrator()
-                                ]);
+        $token = $user->createToken('apiToken', $listAbilities)->plainTextToken;
+
+        return response()->json(
+            [
+                'id'             => $user->id,
+                'username'       => $user->name,
+                'email'          => $user->email,
+                'status'         => $user->status,
+                'token'          => $token,
+                'is_super_admin' => $user->isAdministrator()
+            ]
+        );
     }
 
     /**
@@ -48,15 +69,7 @@ class AuthenticatedUserController extends Controller
      */
     public function logout(Request $request): Response
     {
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        if (!empty($request->user()->tokens)) {
-            $request->user()->tokens()->delete();
-        }
+        auth()->user()?->tokens()->delete();
 
         return response()->noContent();
     }

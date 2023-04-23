@@ -34,7 +34,7 @@ class VacancyController extends Controller
     /**
      * Create new vacancy
      */
-    public function store(Request $request): Response|JsonResponse
+    public function store(Request $request): Response | JsonResponse
     {
         $this->authorize('create-vacancy', Vacancy::class);
 
@@ -99,7 +99,7 @@ class VacancyController extends Controller
     /**
      * Show specific vacancy
      */
-    public function show(int $id)
+    public function show(int $id): Response | JsonResponse
     {
         $this->authorize('view-vacancy', Vacancy::class);
 
@@ -111,37 +111,37 @@ class VacancyController extends Controller
     /**
      * Edit specific vacancy
      */
-    public function edit(int $id, Request $request)
+    public function edit(int $id, Request $request): Response | JsonResponse
     {
-        $this->authorize('update-vacancy', Vacancy::class);
-
-        $request->validate(
-            [
-                'title'              => ['max:100', 'unique:vacancies,title'],
-                'active'             => ['bool'],
-                'announcement_text'  => ['string'],
-                'detail_text'        => ['nullable', 'string'],
-                'description'        => ['string'],
-                'conditions'         => ['json'],
-                'locations'          => ['json', 'nullable'],
-                'language_level'     => ['nullable', 'json'],
-                'grade'              => ['nullable', 'json'],
-                'country'            => ['nullable', 'json'],
-                'remote_format'      => ['bool'],
-                'technologies'       => ['json'],
-                'specialisations'    => ['json'],
-                'offer_timeline'     => ['json', 'nullable'],
-                'vacancy_type'       => ['json'],
-                'work_schedule'      => ['json'],
-                'type_of_employment' => ['json'],
-                'work_experience'    => ['json'],
-                'salary'             => ['json', 'nullable'],
-            ]
-        );
-
         $vacancy = Vacancy::find($id);
 
         if ($vacancy instanceof Vacancy) {
+            $this->authorize('update-vacancy', $vacancy);
+
+            $request->validate(
+                [
+                    'title'              => ['max:100', 'unique:vacancies,title'],
+                    'active'             => ['bool'],
+                    'announcement_text'  => ['string'],
+                    'detail_text'        => ['nullable', 'string'],
+                    'description'        => ['string'],
+                    'conditions'         => ['json'],
+                    'locations'          => ['json', 'nullable'],
+                    'language_level'     => ['nullable', 'json'],
+                    'grade'              => ['nullable', 'json'],
+                    'country'            => ['nullable', 'json'],
+                    'remote_format'      => ['bool'],
+                    'technologies'       => ['json'],
+                    'specialisations'    => ['json'],
+                    'offer_timeline'     => ['json', 'nullable'],
+                    'vacancy_type'       => ['json'],
+                    'work_schedule'      => ['json'],
+                    'type_of_employment' => ['json'],
+                    'work_experience'    => ['json'],
+                    'salary'             => ['json', 'nullable'],
+                ]
+            );
+
             try {
                 $vacancy->title              = $request->post('title');
                 $vacancy->detail_image       = $request->post('detail_image');
@@ -178,59 +178,71 @@ class VacancyController extends Controller
     /**
      * Permanently delete vacancy
      */
-    public function update(int $id, Request $request)
+    public function update(int $id, Request $request): Response | JsonResponse
     {
-        $this->authorize('update-vacancy', Vacancy::class);
+        $vacancy = Vacancy::findOrFail($id);
 
-        try {
-            $resource = Vacancy::findOrFail($id);
-            $resource->fill($request->only(['active']));
-            $resource->save();
+        if ($vacancy instanceof Vacancy) {
+            $this->authorize('update-vacancy', $vacancy);
 
-            return response()->noContent();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            try {
+                $vacancy->fill($request->only(['active']));
+                $vacancy->save();
+
+                return response()->noContent();
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
         }
     }
 
     /**
      * Permanently delete vacancy
      */
-    public function destroy(int $id)
+    public function destroy(int $id): Response | JsonResponse
     {
-        $this->authorize('permanently-delete-vacancy', Vacancy::class);
+        $vacancy = Vacancy::findOrFail($id);
 
-        try {
-            Vacancy::query()->where('id', $id)->forceDelete();
+        if ($vacancy instanceof Vacancy) {
+            $this->authorize('permanently-delete-vacancy', $vacancy);
 
-            return response()->noContent();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            try {
+                $vacancy->forceDelete();
+
+                return response()->noContent();
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
         }
     }
 
     /**
      * Restore vacancy throw change status
      */
-    public function restore(int $id)
+    public function restore(int $id): Response | JsonResponse
     {
-        $this->authorize('restore-vacancy', Vacancy::class);
+        $vacancy = Vacancy::withTrashed()->where('id', $id);
 
-        try {
-            Vacancy::withTrashed()->where('id', $id)->restore();
+        if ($vacancy instanceof Vacancy) {
+            $this->authorize('restore-vacancy', $vacancy);
 
-            return response()->noContent();
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            try {
+                Vacancy::withTrashed()->where('id', $id)->restore();
+
+                return response()->noContent();
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
         }
     }
 
     /**
      * Delete vacancy throw change status
      */
-    public function delete(int $id)
+    public function delete(int $id): Response | JsonResponse
     {
         $vacancy = Vacancy::findOrFail($id);
+
         if ($vacancy instanceof Vacancy) {
             $this->authorize('delete-vacancy', $vacancy);
 

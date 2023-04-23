@@ -8,10 +8,13 @@ use App\Policies\UserPolicy;
 use App\Policies\VacancyPolicy;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 
 class AuthServiceProvider extends ServiceProvider
@@ -35,6 +38,12 @@ class AuthServiceProvider extends ServiceProvider
 
         ResetPassword::createUrlUsing(static function (object $notifiable, string $token) {
             return config('app.frontend_url') . "/admin/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
+        });
+
+        RateLimiter::for('login', static function (Request $request) {
+            $email = (string) $request->post('email');
+
+            return Limit::perMinute(5)->by($email.$request->ip());
         });
 
         VerifyEmail::createUrlUsing(static function (object $notifiable) {

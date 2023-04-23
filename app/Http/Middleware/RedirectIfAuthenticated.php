@@ -22,6 +22,7 @@ class RedirectIfAuthenticated
     {
         $guards = empty($guards) ? [null] : $guards;
 
+        Log::error('error is authentificated');
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
                 $request->user()->tokens()->delete();

@@ -58,7 +58,7 @@ class RegisteredUserController extends Controller
             $listAbilities[] = $ability['name'];
         }
 
-        Log::info($request->user()->name . ' abilities:', $listAbilities);
+        Log::info($user->name . ' abilities:', $listAbilities);
 
         $token = $user->createToken('apiToken', $listAbilities);
 
@@ -66,12 +66,12 @@ class RegisteredUserController extends Controller
 
         return response()->json(
             [
-                'id' => $request->user()->id,
-                'username' => $request->user()->name,
-                'email' => $request->user()->email,
-                'status' => $request->user()->status,
+                'id' => $user->id,
+                'username' => $user->name,
+                'email' => $user->email,
+                'status' => $user->status,
                 'token'   => $token->plainTextToken,
-                'is_super_admin' => $request->user()->isAdministrator()
+                'is_super_admin' => $user->isAdministrator()
             ]
         );
     }
