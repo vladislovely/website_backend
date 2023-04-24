@@ -1,13 +1,8 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedUserController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VacancyController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,69 +17,62 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('auth')->group(static function () {
-    Route::post('/register', [RegisteredUserController::class, 'store'])
-         ->name('register');
-
-    Route::post('/login', [AuthenticatedUserController::class, 'login'])
-         ->name('login');
-
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-         ->name('password.email');
-
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])
-         ->name('password.store');
-
-    Route::get('/verify-email/{id}/{hash}', VerifyEmailController::class)
-         ->middleware(['auth:sanctum', 'signed', 'throttle:6,1'])
-         ->name('verification.verify');
-
-    Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-         ->middleware(['auth:sanctum', 'throttle:6,1'])
-         ->name('verification.send');
-
-    Route::post('/logout', [AuthenticatedUserController::class, 'logout'])
-         ->middleware('auth:sanctum')
-         ->name('logout');
-});
-
 Route::group(['middleware' => ['auth:sanctum']], static function () {
     Route::get('/vacancies', [VacancyController::class, 'index'])
+         ->middleware(['ability:view-vacancies'])
          ->name('vacancies');
 
     Route::get('/vacancies/{id}', [VacancyController::class, 'show'])
+         ->middleware(['ability:view-vacancy'])
          ->name('vacancy.show');
 
     Route::post('/vacancies', [VacancyController::class, 'store'])
-         ->name('create-vacancy');
+        ->middleware(['ability:create-vacancy'])
+        ->name('create-vacancy');
 
     Route::patch('/vacancies/{id}', [VacancyController::class, 'update'])
-         ->name('update-vacancy');
+        ->middleware(['ability:update-vacancy'])
+        ->name('update-vacancy');
 
     Route::post('/vacancies/{id}/delete', [VacancyController::class, 'delete'])
-         ->name('delete-vacancy');
+        ->middleware(['ability:delete-vacancy'])
+        ->name('delete-vacancy');
 
     Route::post('/vacancies/{id}/recovery', [VacancyController::class, 'restore'])
-         ->name('recovery-vacancy');
+        ->middleware(['ability:recovery-vacancy'])
+        ->name('recovery-vacancy');
 
     Route::delete('/vacancies/{id}', [VacancyController::class, 'destroy'])
-         ->name('permanently-delete-vacancy');
+        ->middleware(['ability:permanently-delete-vacancy'])
+        ->name('permanently-delete-vacancy');
 
     Route::get('/users', [UserController::class, 'index'])
+         ->middleware(['ability:view-users'])
          ->name('users');
 
     Route::get('/users/{id}', [UserController::class, 'show'])
+         ->middleware(['ability:view-user'])
          ->name('user.show');
 
     Route::patch('/users/{id}', [UserController::class, 'update'])
+         ->middleware(['ability:update-user'])
          ->name('update-user');
 
     Route::post('/users/{id}/delete', [UserController::class, 'delete'])
+         ->middleware(['ability:delete-user'])
          ->name('delete-user');
 
     Route::post('/users/{id}/recovery', [UserController::class, 'restore'])
+         ->middleware(['ability:recovery-user'])
          ->name('recovery-user');
 
     Route::delete('/users/{id}', [UserController::class, 'destroy'])
+         ->middleware(['ability:permanently-delete-user'])
          ->name('permanently-delete-user');
+});
+
+Route::post('/tokens/create', static function (Request $request) {
+    $token = $request->user()->createToken('apiToken', User::DEFAULT_ABILITIES);
+
+    return ['token' => $token->plainTextToken];
 });

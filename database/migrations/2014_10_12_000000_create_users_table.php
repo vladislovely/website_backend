@@ -19,8 +19,6 @@ return new class extends Migration
             $table->string('last_name', 50)->nullable();
             $table->string('email', 100)->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->enum('status', UserStatus::getKeys())
-                  ->default(UserStatus::getKey(UserStatus::STATUS_NOT_VERIFIED))->nullable(false);
             $table->string('password');
             $table->rememberToken();
             $table->softDeletes();

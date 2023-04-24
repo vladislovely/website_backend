@@ -2,13 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
@@ -27,7 +24,7 @@ class RedirectIfAuthenticated
                 $request->user()->tokens()->delete();
 
                 $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
-                $listAbilities = [];
+                $listAbilities  = [];
 
                 foreach ($modelAbilities as $ability) {
                     $listAbilities[] = $ability['name'];
@@ -35,13 +32,17 @@ class RedirectIfAuthenticated
 
                 $token = $request->user()->createToken('apiToken', $listAbilities);
 
-                return response()->json([
-                                            'id' => $request->user()->id,
-                                            'username' => $request->user()->name,
-                                            'email' => $request->user()->email,
-                                            'status' => $request->user()->status,
-                                            'token' => $token->plainTextToken,
-                                        ]);
+                return response()->json(
+                    [
+                        'id'             => $request->user()->id,
+                        'username'       => $request->user()->username,
+                        'name'           => $request->user()->name,
+                        'last_name'      => $request->user()->last_name,
+                        'email'          => $request->user()->email,
+                        'token'          => $token->plainTextToken,
+                        'is_super_admin' => $request->user()->isAdministrator()
+                    ]
+                );
             }
         }
 

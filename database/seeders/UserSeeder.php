@@ -24,7 +24,6 @@ class UserSeeder extends Seeder
                 'email'             => User::ADMIN_MAIL,
                 'password'          => Hash::make('qwerty132456'),
                 'email_verified_at' => now(),
-                'status'            => UserStatus::getKey(UserStatus::STATUS_VERIFIED),
                 'created_at'        => now(),
                 'updated_at'        => now(),
             ]

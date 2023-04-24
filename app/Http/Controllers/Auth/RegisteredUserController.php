@@ -13,32 +13,27 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 
 class RegisteredUserController extends Controller
 {
     /**
      * Handle an incoming registration request.
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): JsonResponse
     {
-        $request->validate(
-            [
-                'username' => ['required', 'string', 'max:50'],
-                'email'    => ['required', 'string', 'email', 'max:100', 'unique:' . User::class],
-                'password' => ['required', Rules\Password::defaults()],
-            ]
-        );
+        $request->validate([
+                               'username' => ['required', 'string', 'max:50'],
+                               'email'    => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
+                               'password' => ['required', Rules\Password::defaults()],
+                           ]);
 
-        $user = User::create(
-            [
-                'username' => $request->post('name'),
-                'email'    => $request->post('email'),
-                'password' => Hash::make($request->post('password')),
-            ]
-        );
+        $user = User::create([
+                                 'username' => $request->post('username'),
+                                 'email'    => $request->post('email'),
+                                 'password' => Hash::make($request->post('password')),
+                             ]);
 
         if ($user) {
             $abilities = Ability::all()->whereIn('name', User::DEFAULT_ABILITIES);
@@ -53,8 +48,6 @@ class RegisteredUserController extends Controller
             DB::table('user_abilities')->insert($abilitiesList);
         }
 
-        event(new Registered($user));
-
         $modelAbilities = $user->abilities()->orderBy('name')->get(['name'])->toArray();
         $listAbilities  = [];
 
@@ -62,9 +55,11 @@ class RegisteredUserController extends Controller
             $listAbilities[] = $ability['name'];
         }
 
-        Log::info('Registered new user: '. $user->username . ' with abilities:', $listAbilities);
+        Log::info('Registered new user: ' . $user->username . ' with abilities:', $listAbilities);
 
         $token = $user->createToken('apiToken', $listAbilities);
+
+        event(new Registered($user));
 
         Auth::login($user);
 
@@ -75,7 +70,6 @@ class RegisteredUserController extends Controller
                 'name'           => $user->name,
                 'last_name'      => $user->last_name,
                 'email'          => $user->email,
-                'status'         => $user->status,
                 'token'          => $token->plainTextToken,
                 'is_super_admin' => $user->isAdministrator()
             ]

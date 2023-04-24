@@ -15,16 +15,16 @@ class VerifyEmailController extends Controller
     /**
      * Mark the authenticated user's email address as verified.
      */
-    public function __invoke(EmailVerificationRequest $request): Response
+    public function __invoke(EmailVerificationRequest $request): JsonResponse | Response
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return response()->noContent();
+            return response()->json(['message' => 'Your email is already verified']);
         }
 
         if ($request->user()->markEmailAsVerified()) {
             event(new Verified($request->user()));
 
-            $request->user()->update(['status' => UserStatus::getKey(UserStatus::STATUS_VERIFIED)]);
+            return response()->json(['message' => 'Congratulations! Your mail is verified']);
         }
 
         return response()->noContent();

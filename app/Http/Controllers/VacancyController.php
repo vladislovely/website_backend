@@ -15,8 +15,6 @@ class VacancyController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('view-vacancies', Vacancy::class);
-
         $trashed = filter_var($request->get('trashed'), FILTER_VALIDATE_BOOLEAN);
 
         if ($trashed) {
@@ -34,8 +32,6 @@ class VacancyController extends Controller
      */
     public function store(Request $request): Response|JsonResponse
     {
-        $this->authorize('create-vacancy', Vacancy::class);
-
         $request->validate(
             [
                 'title'              => ['required', 'max:100', 'unique:vacancies,title'],
@@ -103,8 +99,6 @@ class VacancyController extends Controller
      */
     public function show(int $id): Response|JsonResponse
     {
-        $this->authorize('view-vacancy', Vacancy::class);
-
         $vacancy = Vacancy::find($id);
 
         return response()->json($vacancy);

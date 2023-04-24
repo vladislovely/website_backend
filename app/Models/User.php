@@ -30,7 +30,7 @@ class User extends Authenticatable
 
     public const ADMIN_MAIL = 'admin@sibedge.com';
     public const DEFAULT_ABILITIES = [
-        'update-user',
+        'view-user',
         'view-vacancies',
         'view-vacancy',
         'create-vacancy',
@@ -67,7 +67,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'status' => UserStatus::class,
     ];
 
     public function abilities(): BelongsToMany
