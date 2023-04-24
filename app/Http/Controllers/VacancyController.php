@@ -7,8 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Lottery;
 
 class VacancyController extends Controller
 {
@@ -34,7 +32,7 @@ class VacancyController extends Controller
     /**
      * Create new vacancy
      */
-    public function store(Request $request): Response | JsonResponse
+    public function store(Request $request): Response|JsonResponse
     {
         $this->authorize('create-vacancy', Vacancy::class);
 
@@ -64,28 +62,32 @@ class VacancyController extends Controller
 
         try {
             $vacancy                     = new Vacancy();
-            $vacancy->title              = $request->post('title');
-            $vacancy->detail_image       = $request->post('detail_image');
+            $vacancy->fill(
+                [
+                    'title',
+                    'detail_image',
+                    'active',
+                    'announcement_text',
+                    'detail_text',
+                    'description',
+                    'conditions',
+                    'locations',
+                    'language_level',
+                    'grade',
+                    'country',
+                    'remote_format',
+                    'technologies',
+                    'specialisations',
+                    'offer_timeline',
+                    'vacancy_type',
+                    'work_schedule',
+                    'type_of_employment',
+                    'work_experience',
+                    'salary',
+                ]
+            );
             $vacancy->created_by         = $request->user()->id;
-            $vacancy->updated_by         = (int)$request->user()->id;
-            $vacancy->active             = $request->post('active');
-            $vacancy->announcement_text  = $request->post('announcement_text');
-            $vacancy->detail_text        = $request->post('detail_text');
-            $vacancy->description        = $request->post('description');
-            $vacancy->conditions         = $request->post('conditions');
-            $vacancy->locations          = $request->post('locations');
-            $vacancy->language_level     = $request->post('language_level');
-            $vacancy->grade              = $request->post('grade');
-            $vacancy->country            = $request->post('country');
-            $vacancy->remote_format      = $request->post('remote_format');
-            $vacancy->technologies       = $request->post('technologies');
-            $vacancy->specialisations    = $request->post('specialisations');
-            $vacancy->offer_timeline     = $request->post('offer_timeline');
-            $vacancy->vacancy_type       = $request->post('vacancy_type');
-            $vacancy->work_schedule      = $request->post('work_schedule');
-            $vacancy->type_of_employment = $request->post('type_of_employment');
-            $vacancy->work_experience    = $request->post('work_experience');
-            $vacancy->salary             = $request->post('salary');
+            $vacancy->updated_by         = $request->user()->id;
             $vacancy->created_at         = Carbon::now();
             $vacancy->updated_at         = Carbon::now();
             $vacancy->save();
@@ -99,7 +101,7 @@ class VacancyController extends Controller
     /**
      * Show specific vacancy
      */
-    public function show(int $id): Response | JsonResponse
+    public function show(int $id): Response|JsonResponse
     {
         $this->authorize('view-vacancy', Vacancy::class);
 
@@ -109,11 +111,11 @@ class VacancyController extends Controller
     }
 
     /**
-     * Edit specific vacancy
+     * Update vacancy
      */
-    public function edit(int $id, Request $request): Response | JsonResponse
+    public function update(int $id, Request $request): Response|JsonResponse
     {
-        $vacancy = Vacancy::find($id);
+        $vacancy = Vacancy::findOrFail($id);
 
         if ($vacancy instanceof Vacancy) {
             $this->authorize('update-vacancy', $vacancy);
@@ -143,50 +145,32 @@ class VacancyController extends Controller
             );
 
             try {
-                $vacancy->title              = $request->post('title');
-                $vacancy->detail_image       = $request->post('detail_image');
+                $vacancy->fill($request->only(
+                    [
+                        'title',
+                        'detail_text',
+                        'active',
+                        'announcement_text',
+                        'detail_image',
+                        'description',
+                        'conditions',
+                        'locations',
+                        'language_level',
+                        'grade',
+                        'country',
+                        'remote_format',
+                        'technologies',
+                        'specialisations',
+                        'offer_timeline',
+                        'vacancy_type',
+                        'work_schedule',
+                        'type_of_employment',
+                        'work_experience',
+                        'salary',
+                    ]
+                ));
                 $vacancy->updated_by         = (int)$request->user()->id;
-                $vacancy->active             = $request->post('active');
-                $vacancy->announcement_text  = $request->post('announcement_text');
-                $vacancy->detail_text        = $request->post('detail_text');
-                $vacancy->description        = $request->post('description');
-                $vacancy->conditions         = $request->post('conditions');
-                $vacancy->locations          = $request->post('locations');
-                $vacancy->language_level     = $request->post('language_level');
-                $vacancy->grade              = $request->post('grade');
-                $vacancy->country            = $request->post('country');
-                $vacancy->remote_format      = $request->post('remote_format');
-                $vacancy->technologies       = $request->post('technologies');
-                $vacancy->specialisations    = $request->post('specialisations');
-                $vacancy->offer_timeline     = $request->post('offer_timeline');
-                $vacancy->vacancy_type       = $request->post('vacancy_type');
-                $vacancy->work_schedule      = $request->post('work_schedule');
-                $vacancy->type_of_employment = $request->post('type_of_employment');
-                $vacancy->work_experience    = $request->post('work_experience');
-                $vacancy->salary             = $request->post('salary');
                 $vacancy->updated_at         = Carbon::now();
-                $vacancy->save();
-
-                return response()->noContent(200);
-            } catch (\Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 500);
-            }
-        }
-        return response()->json(['message' => 'vacancy is not found'], 404);
-    }
-
-    /**
-     * Permanently delete vacancy
-     */
-    public function update(int $id, Request $request): Response | JsonResponse
-    {
-        $vacancy = Vacancy::findOrFail($id);
-
-        if ($vacancy instanceof Vacancy) {
-            $this->authorize('update-vacancy', $vacancy);
-
-            try {
-                $vacancy->fill($request->only(['active']));
                 $vacancy->save();
 
                 return response()->noContent();
@@ -199,7 +183,7 @@ class VacancyController extends Controller
     /**
      * Permanently delete vacancy
      */
-    public function destroy(int $id): Response | JsonResponse
+    public function destroy(int $id): Response|JsonResponse
     {
         $vacancy = Vacancy::findOrFail($id);
 
@@ -219,7 +203,7 @@ class VacancyController extends Controller
     /**
      * Restore vacancy throw change status
      */
-    public function restore(int $id): Response | JsonResponse
+    public function restore(int $id): Response|JsonResponse
     {
         $vacancy = Vacancy::withTrashed()->where('id', $id);
 
@@ -239,7 +223,7 @@ class VacancyController extends Controller
     /**
      * Delete vacancy throw change status
      */
-    public function delete(int $id): Response | JsonResponse
+    public function delete(int $id): Response|JsonResponse
     {
         $vacancy = Vacancy::findOrFail($id);
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VacancyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -52,13 +53,10 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
          ->name('vacancies');
 
     Route::get('/vacancies/{id}', [VacancyController::class, 'show'])
-         ->name('vacancy');
+         ->name('vacancy.show');
 
     Route::post('/vacancies', [VacancyController::class, 'store'])
          ->name('create-vacancy');
-
-    Route::put('/vacancies/{id}', [VacancyController::class, 'edit'])
-         ->name('update-vacancy');
 
     Route::patch('/vacancies/{id}', [VacancyController::class, 'update'])
          ->name('update-vacancy');
@@ -67,9 +65,26 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
          ->name('delete-vacancy');
 
     Route::post('/vacancies/{id}/recovery', [VacancyController::class, 'restore'])
-         ->name('restore-vacancy');
+         ->name('recovery-vacancy');
 
     Route::delete('/vacancies/{id}', [VacancyController::class, 'destroy'])
          ->name('permanently-delete-vacancy');
 
+    Route::get('/users', [UserController::class, 'index'])
+         ->name('users');
+
+    Route::get('/users/{id}', [UserController::class, 'show'])
+         ->name('user.show');
+
+    Route::patch('/users/{id}', [UserController::class, 'update'])
+         ->name('update-user');
+
+    Route::post('/users/{id}/delete', [UserController::class, 'delete'])
+         ->name('delete-user');
+
+    Route::post('/users/{id}/recovery', [UserController::class, 'restore'])
+         ->name('recovery-user');
+
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])
+         ->name('permanently-delete-user');
 });

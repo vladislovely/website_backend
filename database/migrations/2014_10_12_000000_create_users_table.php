@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\UserStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,11 +14,16 @@ return new class extends Migration
     {
         Schema::create('users', static function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('username', 50);
+            $table->string('name', 50)->nullable();
+            $table->string('last_name', 50)->nullable();
+            $table->string('email', 100)->unique();
             $table->timestamp('email_verified_at')->nullable();
+            $table->enum('status', UserStatus::getKeys())
+                  ->default(UserStatus::getKey(UserStatus::STATUS_NOT_VERIFIED))->nullable(false);
             $table->string('password');
             $table->rememberToken();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

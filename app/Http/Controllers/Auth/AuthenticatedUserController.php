@@ -8,8 +8,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class AuthenticatedUserController extends Controller
@@ -19,10 +17,9 @@ class AuthenticatedUserController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        Log::error('login');
         $request->validate(
             [
-                'email' => ['required', 'string', 'email'],
+                'email'    => ['required', 'string', 'email'],
                 'password' => ['required', 'string'],
             ]
         );
@@ -50,12 +47,16 @@ class AuthenticatedUserController extends Controller
             $user->tokens()->delete();
         }
 
+        Log::info('Authenticated user: '. $user->username . ' with abilities:', $listAbilities);
+
         $token = $user->createToken('apiToken', $listAbilities)->plainTextToken;
 
         return response()->json(
             [
                 'id'             => $user->id,
-                'username'       => $user->name,
+                'username'       => $user->username,
+                'name'           => $user->name,
+                'last_name'      => $user->last_name,
                 'email'          => $user->email,
                 'status'         => $user->status,
                 'token'          => $token,

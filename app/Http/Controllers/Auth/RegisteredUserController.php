@@ -24,17 +24,21 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $request->validate([
-                               'name'     => ['required', 'string', 'max:255'],
-                               'email'    => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
-                               'password' => ['required', Rules\Password::defaults()],
-                           ]);
+        $request->validate(
+            [
+                'username' => ['required', 'string', 'max:50'],
+                'email'    => ['required', 'string', 'email', 'max:100', 'unique:' . User::class],
+                'password' => ['required', Rules\Password::defaults()],
+            ]
+        );
 
-        $user = User::create([
-                                 'name'     => $request->post('name'),
-                                 'email'    => $request->post('email'),
-                                 'password' => Hash::make($request->post('password')),
-                             ]);
+        $user = User::create(
+            [
+                'username' => $request->post('name'),
+                'email'    => $request->post('email'),
+                'password' => Hash::make($request->post('password')),
+            ]
+        );
 
         if ($user) {
             $abilities = Ability::all()->whereIn('name', User::DEFAULT_ABILITIES);
@@ -58,7 +62,7 @@ class RegisteredUserController extends Controller
             $listAbilities[] = $ability['name'];
         }
 
-        Log::info($user->name . ' abilities:', $listAbilities);
+        Log::info('Registered new user: '. $user->username . ' with abilities:', $listAbilities);
 
         $token = $user->createToken('apiToken', $listAbilities);
 
@@ -66,11 +70,13 @@ class RegisteredUserController extends Controller
 
         return response()->json(
             [
-                'id' => $user->id,
-                'username' => $user->name,
-                'email' => $user->email,
-                'status' => $user->status,
-                'token'   => $token->plainTextToken,
+                'id'             => $user->id,
+                'username'       => $user->username,
+                'name'           => $user->name,
+                'last_name'      => $user->last_name,
+                'email'          => $user->email,
+                'status'         => $user->status,
+                'token'          => $token->plainTextToken,
                 'is_super_admin' => $user->isAdministrator()
             ]
         );

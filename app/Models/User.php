@@ -3,8 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -14,6 +16,8 @@ use Laravel\Sanctum\HasApiTokens;
  *
  * @property int $id
  * @property string $name
+ * @property string $username
+ * @property string $last_name
  * @property string $email
  * @property string $password
  * @property string $status
@@ -22,11 +26,11 @@ use Laravel\Sanctum\HasApiTokens;
  */
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
-    public const ADMIN_MAIL = 'zvoryginvy@sibedge.com';
+    public const ADMIN_MAIL = 'admin@sibedge.com';
     public const DEFAULT_ABILITIES = [
-        'create-user',
+        'update-user',
         'view-vacancies',
         'view-vacancy',
         'create-vacancy',
@@ -39,6 +43,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
+        'last_name',
         'email',
         'password',
         'status',
@@ -61,6 +67,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'status' => UserStatus::class,
     ];
 
     public function abilities(): BelongsToMany
