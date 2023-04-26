@@ -36,8 +36,6 @@ class RedirectIfAuthenticated
                     [
                         'id'             => $request->user()->id,
                         'username'       => $request->user()->username,
-                        'name'           => $request->user()->name,
-                        'last_name'      => $request->user()->last_name,
                         'email'          => $request->user()->email,
                         'token'          => $token->plainTextToken,
                         'is_super_admin' => $request->user()->isAdministrator()

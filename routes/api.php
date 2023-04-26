@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserPermissionsController;
 use App\Http\Controllers\VacancyController;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -19,11 +20,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['auth:sanctum']], static function () {
     Route::get('/vacancies', [VacancyController::class, 'index'])
-         ->middleware(['ability:view-vacancies'])
          ->name('vacancies');
 
     Route::get('/vacancies/{id}', [VacancyController::class, 'show'])
-         ->middleware(['ability:view-vacancy'])
          ->name('vacancy.show');
 
     Route::post('/vacancies', [VacancyController::class, 'store'])
@@ -47,12 +46,7 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
         ->name('permanently-delete-vacancy');
 
     Route::get('/users', [UserController::class, 'index'])
-         ->middleware(['ability:view-users'])
-         ->name('users');
-
-    Route::get('/users/{id}', [UserController::class, 'show'])
-         ->middleware(['ability:view-user'])
-         ->name('user.show');
+         ->name('view-users');
 
     Route::patch('/users/{id}', [UserController::class, 'update'])
          ->middleware(['ability:update-user'])
@@ -69,10 +63,23 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy'])
          ->middleware(['ability:permanently-delete-user'])
          ->name('permanently-delete-user');
+
+    Route::get('/users/permissions', [UserPermissionsController::class, 'index'])
+        ->name('view-users-permissions');
+
+    Route::get('/users/{id}/permissions', [UserPermissionsController::class, 'show'])
+         ->name('view-user-permissions');
+
+    Route::patch('/users/{id}/permissions', [UserPermissionsController::class, 'update'])
+         ->middleware(['ability:update-user-permissions'])
+         ->name('update-user-permissions');
+
+    Route::get('/permissions', [UserPermissionsController::class, 'permissionsList'])
+         ->name('view-permissions');
 });
 
 Route::post('/tokens/create', static function (Request $request) {
-    $token = $request->user()->createToken('apiToken', User::DEFAULT_ABILITIES);
+    $token = $request->user()->createToken('apiToken', $request->user()->abilities()->toArray());
 
     return ['token' => $token->plainTextToken];
 });

@@ -35,4 +35,7 @@ Route::prefix('auth')->group(static function () {
     Route::post('/logout', [AuthenticatedSessionController::class, 'logout'])
          ->middleware('auth')
          ->name('logout');
+
+    Route::post('/prolongate', [AuthenticatedSessionController::class, 'prolongate'])
+         ->name('prolongate');
 });

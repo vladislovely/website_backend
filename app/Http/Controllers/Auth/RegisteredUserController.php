@@ -67,8 +67,6 @@ class RegisteredUserController extends Controller
             [
                 'id'             => $user->id,
                 'username'       => $user->username,
-                'name'           => $user->name,
-                'last_name'      => $user->last_name,
                 'email'          => $user->email,
                 'token'          => $token->plainTextToken,
                 'is_super_admin' => $user->isAdministrator()

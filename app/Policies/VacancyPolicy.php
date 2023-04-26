@@ -20,21 +20,6 @@ class VacancyPolicy
 
         return null;
     }
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        return $user->tokenCan('view-vacancies');
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Vacancy $vacancy): bool
-    {
-        return $user->tokenCan('view-vacancy');
-    }
 
     /**
      * Determine whether the user can create models.

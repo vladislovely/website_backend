@@ -3,7 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Enums\UserStatus;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,9 +15,7 @@ use Laravel\Sanctum\HasApiTokens;
  * This is the model class for table "users".
  *
  * @property int $id
- * @property string $name
  * @property string $username
- * @property string $last_name
  * @property string $email
  * @property string $password
  * @property string $status
@@ -29,10 +27,8 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     public const ADMIN_MAIL = 'admin@sibedge.com';
+    protected $dateFormat = 'Y-m-d H:i:s';
     public const DEFAULT_ABILITIES = [
-        'view-user',
-        'view-vacancies',
-        'view-vacancy',
         'create-vacancy',
         'update-vacancy',
     ];
@@ -42,22 +38,13 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
         'username',
-        'last_name',
         'email',
         'password',
         'status',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
+        'deleted_at',
+        'created_by',
+        'updated_by',
     ];
 
     /**
@@ -67,6 +54,9 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'created_at'        => 'datetime',
+        'updated_at'        => 'datetime',
+        'deleted_at'        => 'datetime',
     ];
 
     public function abilities(): BelongsToMany
@@ -74,7 +64,13 @@ class User extends Authenticatable
         return $this->belongsToMany(Ability::class, 'user_abilities');
     }
 
-    public function isAdministrator(): bool {
+    public function isAdministrator(): bool
+    {
         return $this->email === self::ADMIN_MAIL;
+    }
+
+    protected function serializeDate(DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d H:i:s');
     }
 }

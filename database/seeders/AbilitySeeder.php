@@ -14,20 +14,17 @@ class AbilitySeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['name'=> 'view-users'],
-            ['name'=> 'view-user'],
-            ['name'=> 'create-user'],
-            ['name'=> 'update-user'],
-            ['name'=> 'delete-user'],
-            ['name'=> 'restore-user'],
-            ['name'=> 'permanently-delete-user'],
-            ['name'=> 'view-vacancies'],
-            ['name'=> 'view-vacancy'],
-            ['name'=> 'create-vacancy'],
-            ['name'=> 'update-vacancy'],
-            ['name'=> 'delete-vacancy'],
-            ['name'=> 'recovery-vacancy'],
-            ['name'=> 'permanently-delete-vacancy'],
+            ['name'=> 'create-user', 'friendly' => 'Добавление пользователя'],
+            ['name'=> 'update-user', 'friendly' => 'Обновление полей пользователя'],
+            ['name'=> 'delete-user', 'friendly' => 'Удаление пользователя'],
+            ['name'=> 'recovery-user', 'friendly' => 'Восстановление пользователя'],
+            ['name'=> 'permanently-delete-user', 'friendly' => 'Перманентное удаление пользователя'],
+            ['name'=> 'create-vacancy', 'friendly' => 'Создание вакансии'],
+            ['name'=> 'update-vacancy', 'friendly' => 'Обновление полей вакансии'],
+            ['name'=> 'delete-vacancy', 'friendly' => 'Удаление вакансии'],
+            ['name'=> 'recovery-vacancy', 'friendly' => 'Восстановление вакансии'],
+            ['name'=> 'permanently-delete-vacancy', 'friendly' => 'Перманентное удаление вакансии'],
+            ['name'=> 'update-user-permissions', 'friendly' => 'Обновление доступов пользователя'],
         ];
 
         DB::table('abilities')->insertOrIgnore($data);

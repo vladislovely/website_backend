@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class VacancyController extends Controller
 {
@@ -32,6 +33,8 @@ class VacancyController extends Controller
      */
     public function store(Request $request): Response|JsonResponse
     {
+        $this->authorize('create-vacancy', Vacancy::class);
+
         $request->validate(
             [
                 'title'              => ['required', 'max:100', 'unique:vacancies,title'],
@@ -172,6 +175,8 @@ class VacancyController extends Controller
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
+
+        throw new NotFoundHttpException('Not found vacancy with provided id');
     }
 
     /**
@@ -192,6 +197,8 @@ class VacancyController extends Controller
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
+
+        throw new NotFoundHttpException('Not found vacancy with provided id');
     }
 
     /**
@@ -212,6 +219,8 @@ class VacancyController extends Controller
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
+
+        throw new NotFoundHttpException('Not found vacancy with provided id');
     }
 
     /**
@@ -232,5 +241,7 @@ class VacancyController extends Controller
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
+
+        throw new NotFoundHttpException('Not found vacancy with provided id');
     }
 }

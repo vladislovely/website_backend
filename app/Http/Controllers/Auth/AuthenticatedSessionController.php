@@ -59,4 +59,11 @@ class AuthenticatedSessionController extends Controller
 
         return response()->noContent();
     }
+
+    public function prolongate(Request $request): Response
+    {
+        $request->session()->regenerate();
+
+        return response()->noContent();
+    }
 }

@@ -19,8 +19,6 @@ class UserSeeder extends Seeder
         DB::table('users')->insertOrIgnore(
             [
                 'username'          => 'Administrator',
-                'name'              => 'Vladislove',
-                'last_name'         => null,
                 'email'             => User::ADMIN_MAIL,
                 'password'          => Hash::make('qwerty132456'),
                 'email_verified_at' => now(),

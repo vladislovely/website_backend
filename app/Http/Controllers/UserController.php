@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use PHPUnit\Metadata\Uses;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserController extends Controller
 {
@@ -16,17 +18,16 @@ class UserController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $this->authorize('view-users', User::class);
         $trashed = filter_var($request->get('trashed'), FILTER_VALIDATE_BOOLEAN);
 
         if ($trashed) {
-            $vacancies = User::withTrashed()->get()->toArray();
+            $users = User::withTrashed()->get()->toArray();
 
-            return response()->json($vacancies);
+            return response()->json($users);
         }
-        $vacancies = User::withoutTrashed()->get()->toArray();
+        $users = User::withoutTrashed()->get()->toArray();
 
-        return response()->json($vacancies);
+        return response()->json($users);
     }
 
     /**
@@ -34,11 +35,13 @@ class UserController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $this->authorize('view-user', User::class);
+        $user = User::findOrFail($id);
 
-        $user = User::find($id);
+        if ($user instanceof User) {
+            return response()->json($user);
+        }
 
-        return response()->json($user);
+        throw new NotFoundHttpException('Not found user with provided id');
     }
 
     /**
@@ -53,15 +56,13 @@ class UserController extends Controller
 
             $request->validate(
                 [
-                    'name'      => ['string', 'max:50', 'nullable'],
                     'username'  => ['string', 'max:50'],
-                    'last_name' => ['string', 'max:50', 'nullable'],
                     'email'     => ['email', 'string', 'max:100'],
                 ]
             );
 
             try {
-                $user->fill($request->only(['username', 'name', 'email', 'last_name']));
+                $user->fill($request->only(['username', 'email']));
                 $user->updated_at = Carbon::now();
                 $user->save();
 
@@ -70,6 +71,8 @@ class UserController extends Controller
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
+
+        throw new NotFoundHttpException('Not found user with provided id');
     }
 
     /**
@@ -90,6 +93,8 @@ class UserController extends Controller
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
+
+        throw new NotFoundHttpException('Not found user with provided id');
     }
 
     public function restore(int $id): Response|JsonResponse
@@ -97,7 +102,7 @@ class UserController extends Controller
         $user = User::withTrashed()->where('id', $id);
 
         if ($user instanceof User) {
-            $this->authorize('restore-vacancy', $user);
+            $this->authorize('recovery-user', $user);
 
             try {
                 User::withTrashed()->where('id', $id)->restore();
@@ -107,6 +112,8 @@ class UserController extends Controller
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
+
+        throw new NotFoundHttpException('Not found user with provided id');
     }
 
     /**
@@ -117,7 +124,7 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         if ($user instanceof User) {
-            $this->authorize('delete-vacancy', $user);
+            $this->authorize('delete-user', $user);
 
             try {
                 $user->delete();
@@ -127,38 +134,7 @@ class UserController extends Controller
                 return response()->json(['error' => $e->getMessage()], 500);
             }
         }
-    }
 
-    public function changePermissions(int $id, Request $request): JsonResponse
-    {
-        $user = User::findOrFail($id);
-
-        if ($user instanceof User) {
-            $this->authorize('update-user', $user);
-
-            $request->validate(
-                [
-                    'permissions' => ['required', 'json'],
-                ]
-            );
-
-            try {
-                $permissions = json_decode($request->post('permissions'), true, 512, JSON_THROW_ON_ERROR);
-
-                $abilities = Ability::all()->whereIn('name', $permissions);
-                $abilitiesList = [];
-                foreach ($abilities as $ability) {
-                    if ($ability instanceof Ability) {
-                        $abilitiesList[] = ['user_id' => $user->id, 'ability_id' => $ability->id, 'created_at' => now(), 'updated_at' => now()];
-                    }
-                }
-
-                \DB::table('user_abilities')->updateOrInsert($abilitiesList);
-
-                return response()->json(['message' => 'Permissions success updated']);
-            } catch (\Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 500);
-            }
-        }
+        throw new NotFoundHttpException('Not found user with provided id');
     }
 }
