@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Article;
 use App\Models\User;
 use App\Models\UserPermissions;
 use App\Models\Vacancy;
+use App\Policies\ArticlePolicy;
 use App\Policies\UserPermissionsPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VacancyPolicy;
@@ -24,9 +26,10 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        User::class => UserPolicy::class,
-        Vacancy::class => VacancyPolicy::class,
+        User::class            => UserPolicy::class,
+        Vacancy::class         => VacancyPolicy::class,
         UserPermissions::class => UserPermissionsPolicy::class,
+        Article::class         => ArticlePolicy::class,
     ];
 
     /**
@@ -67,5 +70,11 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('delete-vacancy', [VacancyPolicy::class, 'delete']);
         Gate::define('recovery-vacancy', [VacancyPolicy::class, 'restore']);
         Gate::define('permanently-delete-vacancy', [VacancyPolicy::class, 'forceDelete']);
+
+        Gate::define('create-article', [ArticlePolicy::class, 'create']);
+        Gate::define('update-article', [ArticlePolicy::class, 'update']);
+        Gate::define('delete-article', [ArticlePolicy::class, 'delete']);
+        Gate::define('recovery-article', [ArticlePolicy::class, 'restore']);
+        Gate::define('permanently-delete-article', [ArticlePolicy::class, 'forceDelete']);
     }
 }

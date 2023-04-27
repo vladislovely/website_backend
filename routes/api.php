@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserPermissionsController;
 use App\Http\Controllers\VacancyController;
@@ -19,11 +20,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::group(['middleware' => ['auth:sanctum']], static function () {
+    // Vacancies
     Route::get('/vacancies', [VacancyController::class, 'index'])
          ->name('vacancies');
 
     Route::get('/vacancies/{id}', [VacancyController::class, 'show'])
-         ->name('vacancy.show');
+         ->name('vacancy-show');
 
     Route::post('/vacancies', [VacancyController::class, 'store'])
         ->middleware(['ability:create-vacancy'])
@@ -45,6 +47,7 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
         ->middleware(['ability:permanently-delete-vacancy'])
         ->name('permanently-delete-vacancy');
 
+    // Users
     Route::get('/users', [UserController::class, 'index'])
          ->name('view-users');
 
@@ -76,10 +79,40 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
 
     Route::get('/permissions', [UserPermissionsController::class, 'permissionsList'])
          ->name('view-permissions');
+
+    // Blog
+    Route::get('/articles', [BlogController::class, 'index'])
+         ->name('articles');
+
+    Route::get('/articles/{id}', [BlogController::class, 'show'])
+         ->name('article-show');
+
+    Route::post('/articles', [BlogController::class, 'store'])
+         ->middleware(['ability:create-article'])
+         ->name('create-article');
+
+    Route::patch('/articles/{id}', [BlogController::class, 'update'])
+         ->middleware(['ability:update-article'])
+         ->name('update-article');
+
+    Route::post('/articles/{id}/delete', [BlogController::class, 'delete'])
+         ->middleware(['ability:delete-article'])
+         ->name('delete-article');
+
+    Route::post('/articles/{id}/recovery', [BlogController::class, 'restore'])
+         ->middleware(['ability:recovery-article'])
+         ->name('recovery-article');
+
+    Route::delete('/articles/{id}', [BlogController::class, 'destroy'])
+         ->middleware(['ability:permanently-delete-article'])
+         ->name('permanently-delete-article');
 });
 
 Route::post('/tokens/create', static function (Request $request) {
+    if (!$request->user()) {
+        return response()->json(['message' => 'Session is expired', 'status' => 'session_expired']);
+    }
     $token = $request->user()->createToken('apiToken', $request->user()->abilities()->toArray());
 
-    return ['token' => $token->plainTextToken];
+    return response()->json(['token' => $token->plainTextToken]);
 });

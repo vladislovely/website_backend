@@ -25,6 +25,11 @@ class AbilitySeeder extends Seeder
             ['name'=> 'recovery-vacancy', 'friendly' => 'Восстановление вакансии'],
             ['name'=> 'permanently-delete-vacancy', 'friendly' => 'Перманентное удаление вакансии'],
             ['name'=> 'update-user-permissions', 'friendly' => 'Обновление доступов пользователя'],
+            ['name'=> 'create-article', 'friendly' => 'Создание статьи'],
+            ['name'=> 'update-article', 'friendly' => 'Обновление полей статьи'],
+            ['name'=> 'delete-article', 'friendly' => 'Удаление статьи'],
+            ['name'=> 'recovery-article', 'friendly' => 'Восстановление статьи'],
+            ['name'=> 'permanently-delete-article', 'friendly' => 'Перманентное удаление статьи'],
         ];
 
         DB::table('abilities')->insertOrIgnore($data);

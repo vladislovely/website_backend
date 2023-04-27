@@ -60,8 +60,8 @@ class VacancyController extends Controller
         );
 
         try {
-            $vacancy                     = new Vacancy();
-            $vacancy->fill(
+            $vacancy = new Vacancy();
+            $vacancy->fill($request->only(
                 [
                     'title',
                     'detail_image',
@@ -84,11 +84,12 @@ class VacancyController extends Controller
                     'work_experience',
                     'salary',
                 ]
+            )
             );
-            $vacancy->created_by         = $request->user()->id;
-            $vacancy->updated_by         = $request->user()->id;
-            $vacancy->created_at         = Carbon::now();
-            $vacancy->updated_at         = Carbon::now();
+            $vacancy->created_by = $request->user()->id;
+            $vacancy->updated_by = $request->user()->id;
+            $vacancy->created_at = Carbon::now();
+            $vacancy->updated_at = Carbon::now();
             $vacancy->save();
 
             return response()->noContent(201);
@@ -166,8 +167,8 @@ class VacancyController extends Controller
                         'salary',
                     ]
                 ));
-                $vacancy->updated_by         = (int)$request->user()->id;
-                $vacancy->updated_at         = Carbon::now();
+                $vacancy->updated_by = (int)$request->user()->id;
+                $vacancy->updated_at = Carbon::now();
                 $vacancy->save();
 
                 return response()->noContent();
