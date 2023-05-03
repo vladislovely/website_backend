@@ -3,10 +3,12 @@
 namespace App\Providers;
 
 use App\Models\Article;
+use App\Models\SuccessStory;
 use App\Models\User;
 use App\Models\UserPermissions;
 use App\Models\Vacancy;
 use App\Policies\ArticlePolicy;
+use App\Policies\SuccessStoriesPolicy;
 use App\Policies\UserPermissionsPolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VacancyPolicy;
@@ -30,6 +32,7 @@ class AuthServiceProvider extends ServiceProvider
         Vacancy::class         => VacancyPolicy::class,
         UserPermissions::class => UserPermissionsPolicy::class,
         Article::class         => ArticlePolicy::class,
+        SuccessStory::class    => SuccessStoriesPolicy::class,
     ];
 
     /**
@@ -40,7 +43,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         ResetPassword::createUrlUsing(static function (object $notifiable, string $token) {
-            return config('app.frontend_url')."/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
+            return config('app.frontend_url') . "/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
         });
 
         VerifyEmail::createUrlUsing(static function (object $notifiable) {
@@ -76,5 +79,11 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('delete-article', [ArticlePolicy::class, 'delete']);
         Gate::define('recovery-article', [ArticlePolicy::class, 'restore']);
         Gate::define('permanently-delete-article', [ArticlePolicy::class, 'forceDelete']);
+
+        Gate::define('create-success-story', [SuccessStoriesPolicy::class, 'create']);
+        Gate::define('update-success-story', [SuccessStoriesPolicy::class, 'update']);
+        Gate::define('delete-success-story', [SuccessStoriesPolicy::class, 'delete']);
+        Gate::define('recovery-success-story', [SuccessStoriesPolicy::class, 'restore']);
+        Gate::define('permanently-delete-success-story', [SuccessStoriesPolicy::class, 'forceDelete']);
     }
 }

@@ -78,13 +78,17 @@ class BlogController extends Controller
      */
     public function show(int $id): Response|JsonResponse
     {
-        $article = Article::find($id);
+        try {
+            $article = Article::find($id);
+        } catch (\Exception $e) {
+            throw new NotFoundHttpException('not found success story');
+        }
 
         return response()->json($article);
     }
 
     /**
-     * Update vacancy
+     * Update article
      */
     public function update(int $id, Request $request): Response|JsonResponse
     {
@@ -131,7 +135,7 @@ class BlogController extends Controller
     }
 
     /**
-     * Permanently delete blog
+     * Permanently delete article
      */
     public function destroy(int $id): Response|JsonResponse
     {
@@ -153,7 +157,7 @@ class BlogController extends Controller
     }
 
     /**
-     * Restore blog throw change status
+     * Restore article throw change status
      */
     public function restore(int $id): Response|JsonResponse
     {
@@ -175,7 +179,7 @@ class BlogController extends Controller
     }
 
     /**
-     * Delete blog throw change status
+     * Delete article throw change status
      */
     public function delete(int $id): Response|JsonResponse
     {

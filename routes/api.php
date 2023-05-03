@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\SuccessStoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserPermissionsController;
 use App\Http\Controllers\VacancyController;
@@ -106,6 +107,33 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
     Route::delete('/articles/{id}', [BlogController::class, 'destroy'])
          ->middleware(['ability:permanently-delete-article'])
          ->name('permanently-delete-article');
+
+    // Success stoies
+    Route::get('/success-stories', [SuccessStoryController::class, 'index'])
+         ->name('success-stories');
+
+    Route::get('/success-stories/{id}', [SuccessStoryController::class, 'show'])
+         ->name('success-stories-show');
+
+    Route::post('/success-stories', [SuccessStoryController::class, 'store'])
+         ->middleware(['ability:create-success-stories'])
+         ->name('create-success-stories');
+
+    Route::patch('/success-stories/{id}', [SuccessStoryController::class, 'update'])
+         ->middleware(['ability:update-success-stories'])
+         ->name('update-success-stories');
+
+    Route::post('/success-stories/{id}/delete', [SuccessStoryController::class, 'delete'])
+         ->middleware(['ability:delete-success-stories'])
+         ->name('delete-success-stories');
+
+    Route::post('/success-stories/{id}/recovery', [SuccessStoryController::class, 'restore'])
+         ->middleware(['ability:recovery-success-stories'])
+         ->name('recovery-success-stories');
+
+    Route::delete('/success-stories/{id}', [SuccessStoryController::class, 'destroy'])
+         ->middleware(['ability:permanently-delete-success-stories'])
+         ->name('permanently-delete-success-stories');
 });
 
 Route::post('/tokens/create', static function (Request $request) {

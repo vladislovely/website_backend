@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 
-class ArticlePolicy
+class SuccessStoriesPolicy
 {
     /**
      * Perform pre-authorization checks.
@@ -23,7 +23,7 @@ class ArticlePolicy
      */
     public function create(User $user): bool
     {
-        return $user->tokenCan('create-article');
+        return $user->tokenCan('create-success-story');
     }
 
     /**
@@ -31,7 +31,7 @@ class ArticlePolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->id === $model->id || $user->tokenCan('update-article');
+        return $user->id === $model->id || $user->tokenCan('update-success-story');
     }
 
     /**
@@ -39,7 +39,7 @@ class ArticlePolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return $user->tokenCan('delete-article');
+        return $user->tokenCan('delete-success-story');
     }
 
     /**
@@ -47,7 +47,7 @@ class ArticlePolicy
      */
     public function restore(User $user, User $model): bool
     {
-        return $user->tokenCan('restore-article');
+        return $user->tokenCan('restore-success-story');
     }
 
     /**
@@ -55,6 +55,6 @@ class ArticlePolicy
      */
     public function forceDelete(User $user, User $model): bool
     {
-        return $user->tokenCan('permanently-delete-article');
+        return $user->tokenCan('permanently-delete-success-story');
     }
 }
