@@ -13,7 +13,10 @@ class RedirectIfAuthenticated
     /**
      * Handle an incoming request.
      *
+     * @param Request $request
      * @param Closure(Request): (Response) $next
+     * @param string ...$guards
+     * @return JsonResponse
      */
     public function handle(Request $request, Closure $next, string ...$guards): JsonResponse
     {
@@ -21,6 +24,10 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                if (Auth::user()?->hasTwoFactorEnabled() === false) {
+                    return $next($request);
+                }
+
                 $request->user()->tokens()->delete();
 
                 $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();

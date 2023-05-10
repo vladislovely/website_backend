@@ -23,19 +23,23 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $request->validate([
-                               'username' => ['required', 'string', 'max:50'],
-                               'email'    => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
-                               'password' => ['required', Rules\Password::defaults()],
-                           ]);
+        $request->validate(
+            [
+                'username' => ['required', 'string', 'max:50'],
+                'email'    => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
+                'password' => ['required', Rules\Password::defaults()],
+            ]
+        );
 
-        $user = User::create([
-                                 'username' => $request->post('username'),
-                                 'email'    => $request->post('email'),
-                                 'password' => Hash::make($request->post('password')),
-                             ]);
+        try {
+            $user = User::create(
+                [
+                    'username' => $request->post('username'),
+                    'email'    => $request->post('email'),
+                    'password' => Hash::make($request->post('password')),
+                ]
+            );
 
-        if ($user) {
             $abilities = Ability::all()->whereIn('name', User::DEFAULT_ABILITIES);
 
             $abilitiesList = [];
@@ -46,31 +50,16 @@ class RegisteredUserController extends Controller
             }
 
             DB::table('user_abilities')->insert($abilitiesList);
+
+            Log::info('Registered new user: ' . $user->username . ' with abilities:', $abilitiesList);
+
+            event(new Registered($user));
+
+            Auth::login($user);
+
+            return response()->json(['status' => 'NEED_VERIFY_EMAIL']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
-
-        $modelAbilities = $user->abilities()->orderBy('name')->get(['name'])->toArray();
-        $listAbilities  = [];
-
-        foreach ($modelAbilities as $ability) {
-            $listAbilities[] = $ability['name'];
-        }
-
-        Log::info('Registered new user: ' . $user->username . ' with abilities:', $listAbilities);
-
-        $token = $user->createToken('apiToken', $listAbilities);
-
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return response()->json(
-            [
-                'id'             => $user->id,
-                'username'       => $user->username,
-                'email'          => $user->email,
-                'token'          => $token->plainTextToken,
-                'is_super_admin' => $user->isAdministrator()
-            ]
-        );
     }
 }
