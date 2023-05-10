@@ -36,21 +36,16 @@ Route::prefix('auth')->group(static function () {
          ->middleware('auth')
          ->name('logout');
 
-    Route::post('/prolongate', [AuthenticatedSessionController::class, 'prolongate'])
-         ->name('prolongate');
-
     // 2FA
     Route::get('/prepare-two-factor', [AuthenticatedSessionController::class, 'prepareTwoFactor'])
-         ->middleware('guest')
+         ->middleware('auth')
          ->name('prepare-two-factor');
 
     Route::post('/confirm-two-factor', [AuthenticatedSessionController::class, 'confirmTwoFactor'])
-         ->middleware('guest')
+         ->middleware('auth')
          ->name('confirm-two-factor');
 
     Route::post('/validate-code', [AuthenticatedSessionController::class, 'validateTwoFactor'])
          ->middleware('guest')
          ->name('validate-two-factor');
-
-
 });

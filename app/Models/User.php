@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -24,9 +24,9 @@ use Laragear\TwoFactor\Contracts\TwoFactorAuthenticatable;
  * @property \DateTime $created_at
  * @property \DateTime $updated_at
  */
-class User extends Authenticatable implements TwoFactorAuthenticatable
+class User extends Authenticatable implements TwoFactorAuthenticatable, MustVerifyEmail
 {
-    use TwoFactorAuthentication, HasFactory, Notifiable, SoftDeletes;
+    use TwoFactorAuthentication, HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     public const ADMIN_MAIL = 'admin@sibedge.com';
     protected $dateFormat = 'Y-m-d H:i:s';

@@ -3,88 +3,112 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\LoginRequestBasic;
+use App\Http\Requests\Auth\RequestConfirmTwoFactor;
+use App\Http\Requests\Auth\RequestValidateTwoFactor;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Handle an incoming authentication request.
      */
-    public function login(LoginRequest $request): JsonResponse
+    public function login(LoginRequestBasic $request): JsonResponse
     {
         $request->authenticate();
-
-//        $request->session()->regenerate();
-//
-//        $request->user()->tokens()->delete();
-//
-//        $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
-//        $listAbilities  = [];
-//
-//        foreach ($modelAbilities as $ability) {
-//            $listAbilities[] = $ability['name'];
-//        }
-//
-//        $data = [
-//            'id'             => $request->user()->id,
-//            'username'       => $request->user()->username,
-//            'email'          => $request->user()->email,
-//            'is_super_admin' => $request->user()->isAdministrator(),
-//            'token'          => $request->user()->createToken('apiToken', $listAbilities)->plainTextToken,
-//        ];
 
         return response()->json(['status' => 'NEED_APPROVE_2FA']);
     }
 
     public function prepareTwoFactor(Request $request): JsonResponse
     {
-        $secret = $request->user()->createTwoFactorAuth();
+        if ($request->user()->hasTwoFactorEnabled() === false) {
+            $secret = $request->user()->createTwoFactorAuth();
 
-        return response()->json(
-            [
-                'qr_code' => $secret->toQr(),
-                'uri'     => $secret->toUri(),
-                'string'  => $secret->toString(),
-            ]
-        );
+            return response()->json(
+                [
+                    'qr_code' => $secret->toQr(),
+                    'uri'     => $secret->toUri(),
+                    'string'  => $secret->toString(),
+                ]
+            );
+        }
+        return new JsonResponse(data: [
+            'message' => 'У пользователя уже включена 2FA',
+        ], status:                    422, json: true);
     }
 
-    public function confirmTwoFactor(Request $request): JsonResponse
+    public function confirmTwoFactor(RequestConfirmTwoFactor $request): JsonResponse
     {
-        $request->validate(
-            [
-                'code' => 'required|numeric'
-            ]
-        );
-
         $activated = $request->user()->confirmTwoFactorAuth($request->post('code'));
 
         if ($activated) {
-            return response()->json(['recovery_codes' => $request->user()->getRecoveryCodes()]);
+            $request->session()->regenerate();
+
+            $request->user()->tokens()->delete();
+
+            $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
+            $listAbilities  = [];
+
+            foreach ($modelAbilities as $ability) {
+                $listAbilities[] = $ability['name'];
+            }
+
+            $data = [
+                'id'             => $request->user()->id,
+                'username'       => $request->user()->username,
+                'email'          => $request->user()->email,
+                'is_super_admin' => $request->user()->isAdministrator(),
+                'token'          => $request->user()->createToken('apiToken', $listAbilities)->plainTextToken,
+                'recovery_codes' => $request->user()->getRecoveryCodes()
+            ];
+
+            return response()->json($data);
         }
 
-        return response()->json(['message' => 'Code is invalid. Double check it and try again.']);
+        return new JsonResponse(data: ['message' => 'Пожалуйста, для начала настройте 2FA',], status: 422, json: true);
     }
 
-    public function validateTwoFactor(Request $request): JsonResponse
+    public function validateTwoFactor(RequestValidateTwoFactor $request): JsonResponse
     {
-        $request->validate(
-            [
-                'code' => 'required|numeric'
-            ]
-        );
+        $request->authenticate();
 
-        $activated = $request->user()->validateTwoFactorCode($request->post('code'));
-
-        if ($activated) {
-            return response()->json(['message' => 'Everything is okey!']);
+        if ($request->user()->hasTwoFactorEnabled() === false) {
+            return new JsonResponse(data: ['message' => 'Пожалуйста, для начала настройте 2FA'], status: 500, json: true);
         }
 
-        return response()->json(['message' => 'Code is invalid. Double check it and try again.']);
+        $validated = $request->user()->validateTwoFactorCode($request->post('code'));
+
+        if ($validated) {
+            $request->session()->regenerate();
+
+            $request->user()->tokens()->delete();
+
+            $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
+            $listAbilities  = [];
+
+            foreach ($modelAbilities as $ability) {
+                $listAbilities[] = $ability['name'];
+            }
+
+            $data = [
+                'id'             => $request->user()->id,
+                'username'       => $request->user()->username,
+                'email'          => $request->user()->email,
+                'is_super_admin' => $request->user()->isAdministrator(),
+                'token'          => $request->user()->createToken('apiToken', $listAbilities)->plainTextToken,
+            ];
+
+            return response()->json($data);
+        }
+
+        return new JsonResponse(data: ['message' => 'Неверный код. Перепроверьте и попробуйте снова'], status: 422, json: true);
     }
 
     /**
@@ -101,13 +125,6 @@ class AuthenticatedSessionController extends Controller
         if (!empty($request->user()->tokens)) {
             $request->user()->tokens()->delete();
         }
-
-        return response()->noContent();
-    }
-
-    public function prolongate(Request $request): Response
-    {
-        $request->session()->regenerate();
 
         return response()->noContent();
     }

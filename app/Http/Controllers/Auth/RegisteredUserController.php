@@ -7,7 +7,6 @@ use App\Models\Ability;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -24,18 +23,22 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $request->validate([
-                               'username' => ['required', 'string', 'max:50'],
-                               'email'    => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
-                               'password' => ['required', Rules\Password::defaults()],
-                           ]);
+        $request->validate(
+            [
+                'username' => ['required', 'string', 'max:50'],
+                'email'    => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
+                'password' => ['required', Rules\Password::defaults()],
+            ]
+        );
 
         try {
-            $user = User::create([
-                                     'username' => $request->post('username'),
-                                     'email'    => $request->post('email'),
-                                     'password' => Hash::make($request->post('password')),
-                                 ]);
+            $user = User::create(
+                [
+                    'username' => $request->post('username'),
+                    'email'    => $request->post('email'),
+                    'password' => Hash::make($request->post('password')),
+                ]
+            );
 
             $abilities = Ability::all()->whereIn('name', User::DEFAULT_ABILITIES);
 
@@ -51,12 +54,12 @@ class RegisteredUserController extends Controller
             Log::info('Registered new user: ' . $user->username . ' with abilities:', $abilitiesList);
 
             event(new Registered($user));
+
+            Auth::login($user);
+
+            return response()->json(['status' => 'NEED_VERIFY_EMAIL']);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
-
-//        Auth::login($user);
-
-        return response()->json(['status' => 'NEED_APPROVE_2FA']);
     }
 }
