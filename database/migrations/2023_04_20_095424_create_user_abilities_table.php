@@ -12,17 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_abilities', static function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('ability_id');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('user_abilities')) {
+            Schema::create('user_abilities', static function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('user_id');
+                $table->unsignedBigInteger('ability_id');
+                $table->timestamps();
 
-        Schema::table('user_abilities', static function (Blueprint $table) {
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('ability_id')->references('id')->on('abilities');
-        });
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+                $table->foreign('ability_id')->references('id')->on('abilities');
+            });
+        }
     }
 
     /**

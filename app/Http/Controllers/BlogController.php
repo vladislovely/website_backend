@@ -41,7 +41,7 @@ class BlogController extends Controller
                 'active'            => ['required', 'bool'],
                 'announcement_text' => ['required', 'string'],
                 'detail_text'       => ['string'],
-                'img_src'           => ['nullable', 'string', 'max:255'],
+                'detail_image'      => ['required', 'nullable', 'string', 'max:255'],
                 'is_important'      => ['required', 'bool'],
                 'release_date'      => ['required', 'date'],
             ]
@@ -55,7 +55,7 @@ class BlogController extends Controller
                     'active',
                     'announcement_text',
                     'detail_text',
-                    'img_src',
+                    'detail_image',
                     'is_important',
                     'release_date',
                 ]
@@ -81,7 +81,7 @@ class BlogController extends Controller
         try {
             $article = Article::find($id);
         } catch (\Exception $e) {
-            throw new NotFoundHttpException('not found success story');
+            throw new NotFoundHttpException('Не найдена статья с переданным ID');
         }
 
         return response()->json($article);
@@ -103,7 +103,7 @@ class BlogController extends Controller
                     'active'            => ['bool'],
                     'announcement_text' => ['string'],
                     'detail_text'       => ['string'],
-                    'img_src'           => ['nullable', 'string', 'max:255'],
+                    'detail_image'      => ['nullable', 'string', 'max:255'],
                     'is_important'      => ['bool'],
                     'release_date'      => ['date'],
                 ]
@@ -116,7 +116,7 @@ class BlogController extends Controller
                         'active',
                         'announcement_text',
                         'detail_text',
-                        'img_src',
+                        'detail_image',
                         'is_important',
                         'release_date',
                     ]
@@ -131,7 +131,7 @@ class BlogController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found article with provided id');
+        throw new NotFoundHttpException('Не найдена статья с переданным ID');
     }
 
     /**
@@ -153,7 +153,7 @@ class BlogController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found article with provided id');
+        throw new NotFoundHttpException('Не найдена статья с переданным ID');
     }
 
     /**
@@ -175,7 +175,7 @@ class BlogController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found article with provided id');
+        throw new NotFoundHttpException('Не найдена статья с переданным ID');
     }
 
     /**
@@ -197,6 +197,6 @@ class BlogController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found article with provided id');
+        throw new NotFoundHttpException('Не найдена статья с переданным ID');
     }
 }

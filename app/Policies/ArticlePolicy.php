@@ -2,7 +2,9 @@
 
 namespace App\Policies;
 
+use App\Models\Article;
 use App\Models\User;
+use App\Models\Vacancy;
 
 class ArticlePolicy
 {
@@ -29,23 +31,23 @@ class ArticlePolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, User $model): bool
+    public function update(User $user, Article $article): bool
     {
-        return $user->id === $model->id || $user->tokenCan('update-article');
+        return $user->id === $article->created_by || $user->tokenCan('update-article');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, User $model): bool
+    public function delete(User $user, Article $article): bool
     {
-        return $user->tokenCan('delete-article');
+        return $user->id === $article->created_by || $user->tokenCan('delete-article');
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, User $model): bool
+    public function restore(User $user, Vacancy $model): bool
     {
         return $user->tokenCan('restore-article');
     }
@@ -53,7 +55,7 @@ class ArticlePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, User $model): bool
+    public function forceDelete(User $user, Vacancy $model): bool
     {
         return $user->tokenCan('permanently-delete-article');
     }

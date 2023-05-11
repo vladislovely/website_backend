@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\StorageController;
 use App\Http\Controllers\SuccessStoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserPermissionsController;
@@ -108,7 +109,7 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
          ->middleware(['ability:permanently-delete-article'])
          ->name('permanently-delete-article');
 
-    // Success stoies
+    // Success stories
     Route::get('/success-stories', [SuccessStoryController::class, 'index'])
          ->name('success-stories');
 
@@ -134,6 +135,13 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
     Route::delete('/success-stories/{id}', [SuccessStoryController::class, 'destroy'])
          ->middleware(['ability:permanently-delete-success-stories'])
          ->name('permanently-delete-success-stories');
+
+    // AWS s3
+    Route::post('/storage/upload-file', [StorageController::class, 'store'])
+         ->name('upload-file');
+
+    Route::post('/storage/delete-file', [StorageController::class, 'destroy'])
+         ->name('delete-file');
 });
 
 Route::post('/tokens/create', static function (Request $request) {

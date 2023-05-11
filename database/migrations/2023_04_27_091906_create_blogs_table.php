@@ -10,23 +10,25 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('articles', static function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('created_by')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
-            $table->string('title', 100);
-            $table->boolean('active');
-            $table->text('announcement_text');
-            $table->text('detail_text');
-            $table->string('detail_image', 255)->nullable();
-            $table->boolean('is_important');
-            $table->timestamp('release_date');
-            $table->softDeletes();
-            $table->timestamps();
+        if (!Schema::hasTable('articles')) {
+            Schema::create('articles', static function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('created_by')->nullable();
+                $table->unsignedBigInteger('updated_by')->nullable();
+                $table->string('title', 100);
+                $table->boolean('active');
+                $table->text('announcement_text');
+                $table->text('detail_text');
+                $table->string('detail_image', 255)->nullable();
+                $table->boolean('is_important');
+                $table->timestamp('release_date');
+                $table->softDeletes();
+                $table->timestamps();
 
-            $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
-        });
+                $table->foreign('created_by')->references('id')->on('users')->onDelete('set null');
+                $table->foreign('updated_by')->references('id')->on('users')->onDelete('set null');
+            });
+        }
     }
 
     /**

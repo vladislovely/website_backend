@@ -85,7 +85,7 @@ class SuccessStoryController extends Controller
         try {
             $successStory = SuccessStory::find($id);
         } catch (\Exception $e) {
-            throw new NotFoundHttpException('Not found success story with provided id');
+            throw new NotFoundHttpException('Не найдена успешная история с переданным ID');
         }
 
         return response()->json($successStory);
@@ -139,7 +139,7 @@ class SuccessStoryController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found success story with provided id');
+        throw new NotFoundHttpException('Не найдена успешная история с переданным ID');
     }
 
     /**
@@ -161,7 +161,7 @@ class SuccessStoryController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found success story with provided id');
+        throw new NotFoundHttpException('Не найдена успешная история с переданным ID');
     }
 
     /**
@@ -183,7 +183,7 @@ class SuccessStoryController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found success story with provided id');
+        throw new NotFoundHttpException('Не найдена успешная история с переданным ID');
     }
 
     /**
@@ -205,6 +205,6 @@ class SuccessStoryController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found success story with provided id');
+        throw new NotFoundHttpException('Не найдена успешная история с переданным ID');
     }
 }

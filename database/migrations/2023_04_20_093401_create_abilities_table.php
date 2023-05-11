@@ -12,11 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('abilities', static function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 50)->unique();
-            $table->string('friendly', 50);
-        });
+        if (!Schema::hasTable('abilities')) {
+            Schema::create('abilities', static function (Blueprint $table) {
+                $table->id();
+                $table->string('name', 50)->unique();
+                $table->string('friendly', 50);
+            });
+        }
     }
 
     /**

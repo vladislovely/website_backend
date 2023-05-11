@@ -64,7 +64,6 @@ class VacancyController extends Controller
             $vacancy->fill($request->only(
                 [
                     'title',
-                    'detail_image',
                     'active',
                     'announcement_text',
                     'detail_text',
@@ -149,7 +148,6 @@ class VacancyController extends Controller
                         'detail_text',
                         'active',
                         'announcement_text',
-                        'detail_image',
                         'description',
                         'conditions',
                         'locations',
@@ -177,7 +175,7 @@ class VacancyController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found vacancy with provided id');
+        throw new NotFoundHttpException('Не найдена вакансия с переданным ID');
     }
 
     /**
@@ -199,7 +197,7 @@ class VacancyController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found vacancy with provided id');
+        throw new NotFoundHttpException('Не найдена вакансия с переданным ID');
     }
 
     /**
@@ -221,7 +219,7 @@ class VacancyController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found vacancy with provided id');
+        throw new NotFoundHttpException('Не найдена вакансия с переданным ID');
     }
 
     /**
@@ -243,6 +241,6 @@ class VacancyController extends Controller
             }
         }
 
-        throw new NotFoundHttpException('Not found vacancy with provided id');
+        throw new NotFoundHttpException('Не найдена вакансия с переданным ID');
     }
 }
