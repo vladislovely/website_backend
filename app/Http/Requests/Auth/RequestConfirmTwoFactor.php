@@ -40,7 +40,7 @@ class RequestConfirmTwoFactor extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (!$this->user()->confirmTwoFactorAuth($this->only('code'))) {
+        if (!$this->user()->confirmTwoFactorAuth($this->string('code'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

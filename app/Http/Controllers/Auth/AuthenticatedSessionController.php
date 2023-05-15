@@ -41,14 +41,16 @@ class AuthenticatedSessionController extends Controller
         }
         return new JsonResponse(data: [
             'message' => 'У пользователя уже включена 2FA',
-        ], status:                    422, json: true);
+        ], status:                    422);
     }
 
     public function confirmTwoFactor(RequestConfirmTwoFactor $request): JsonResponse
     {
-        $activated = $request->user()->confirmTwoFactorAuth($request->post('code'));
+        $request->authenticate();
 
-        if ($activated) {
+        $confirmed = $request->user()->confirmTwoFactorAuth($request->string('code'));
+
+        if ($confirmed) {
             $request->session()->regenerate();
 
             $request->user()->tokens()->delete();
@@ -72,43 +74,37 @@ class AuthenticatedSessionController extends Controller
             return response()->json($data);
         }
 
-        return new JsonResponse(data: ['message' => 'Пожалуйста, для начала настройте 2FA',], status: 422, json: true);
+        return new JsonResponse(data: ['message' => 'Пожалуйста, для начала настройте 2FA',], status: 422);
     }
 
     public function validateTwoFactor(RequestValidateTwoFactor $request): JsonResponse
     {
+        if ($request->user()->hasTwoFactorEnabled() === false) {
+            return new JsonResponse(data: ['message' => 'Пожалуйста, для начала настройте 2FA'], status: 500);
+        }
+
         $request->authenticate();
 
-        if ($request->user()->hasTwoFactorEnabled() === false) {
-            return new JsonResponse(data: ['message' => 'Пожалуйста, для начала настройте 2FA'], status: 500, json: true);
+        $request->session()->regenerate();
+
+        $request->user()->tokens()->delete();
+
+        $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
+        $listAbilities  = [];
+
+        foreach ($modelAbilities as $ability) {
+            $listAbilities[] = $ability['name'];
         }
 
-        $validated = $request->user()->validateTwoFactorCode($request->post('code'));
+        $data = [
+            'id'             => $request->user()->id,
+            'username'       => $request->user()->username,
+            'email'          => $request->user()->email,
+            'is_super_admin' => $request->user()->isAdministrator(),
+            'token'          => $request->user()->createToken('apiToken', $listAbilities)->plainTextToken,
+        ];
 
-        if ($validated) {
-            $request->session()->regenerate();
-
-            $request->user()->tokens()->delete();
-
-            $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
-            $listAbilities  = [];
-
-            foreach ($modelAbilities as $ability) {
-                $listAbilities[] = $ability['name'];
-            }
-
-            $data = [
-                'id'             => $request->user()->id,
-                'username'       => $request->user()->username,
-                'email'          => $request->user()->email,
-                'is_super_admin' => $request->user()->isAdministrator(),
-                'token'          => $request->user()->createToken('apiToken', $listAbilities)->plainTextToken,
-            ];
-
-            return response()->json($data);
-        }
-
-        return new JsonResponse(data: ['message' => 'Неверный код. Перепроверьте и попробуйте снова'], status: 422, json: true);
+        return response()->json($data);
     }
 
     /**
@@ -127,5 +123,27 @@ class AuthenticatedSessionController extends Controller
         }
 
         return response()->noContent();
+    }
+
+    public function prolongationSession(Request $request): JsonResponse
+    {
+        $request->session()->migrate();
+
+        $request->user()->tokens()->delete();
+
+        $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
+        $listAbilities  = [];
+
+        foreach ($modelAbilities as $ability) {
+            $listAbilities[] = $ability['name'];
+        }
+
+        $token = $request->user()->createToken('apiToken', $listAbilities);
+
+        return response()->json(
+            [
+                'token' => $token->plainTextToken,
+            ]
+        );
     }
 }

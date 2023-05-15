@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'totp_code' => 'The Code is invalid or has expired.',
+    'totp_code' => 'Код недействительный или истек. Перепроверьте и попробуйте снова!',
 ];
