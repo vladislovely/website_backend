@@ -6,13 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequestBasic;
 use App\Http\Requests\Auth\RequestConfirmTwoFactor;
 use App\Http\Requests\Auth\RequestValidateTwoFactor;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -23,7 +20,7 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        return response()->json(['status' => 'NEED_APPROVE_2FA']);
+        return response()->json(['status' => $request->user()->hasTwoFactorEnabled() ? 'NEED_APPROVE_2FA' : 'NEED_SETUP_2FA']);
     }
 
     public function prepareTwoFactor(Request $request): JsonResponse
@@ -36,12 +33,13 @@ class AuthenticatedSessionController extends Controller
                     'qr_code' => $secret->toQr(),
                     'uri'     => $secret->toUri(),
                     'string'  => $secret->toString(),
+                    'status' => 'NEED_CONFIRM_2FA',
                 ]
             );
         }
         return new JsonResponse(data: [
-            'message' => 'У пользователя уже включена 2FA',
-        ], status:                    422);
+                                          'message' => 'У пользователя уже включена 2FA',
+                                      ], status: 422);
     }
 
     public function confirmTwoFactor(RequestConfirmTwoFactor $request): JsonResponse
@@ -56,7 +54,7 @@ class AuthenticatedSessionController extends Controller
             $request->user()->tokens()->delete();
 
             $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
-            $listAbilities  = [];
+            $listAbilities = [];
 
             foreach ($modelAbilities as $ability) {
                 $listAbilities[] = $ability['name'];
@@ -68,7 +66,7 @@ class AuthenticatedSessionController extends Controller
                 'email'          => $request->user()->email,
                 'is_super_admin' => $request->user()->isAdministrator(),
                 'token'          => $request->user()->createToken('apiToken', $listAbilities)->plainTextToken,
-                'recovery_codes' => $request->user()->getRecoveryCodes()
+                'recovery_codes' => $request->user()->getRecoveryCodes(),
             ];
 
             return response()->json($data);
@@ -90,18 +88,19 @@ class AuthenticatedSessionController extends Controller
         $request->user()->tokens()->delete();
 
         $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
-        $listAbilities  = [];
+        $listAbilities = [];
 
         foreach ($modelAbilities as $ability) {
             $listAbilities[] = $ability['name'];
         }
 
         $data = [
-            'id'             => $request->user()->id,
-            'username'       => $request->user()->username,
-            'email'          => $request->user()->email,
-            'is_super_admin' => $request->user()->isAdministrator(),
-            'token'          => $request->user()->createToken('apiToken', $listAbilities)->plainTextToken,
+            'id'                => $request->user()->id,
+            'username'          => $request->user()->username,
+            'email'             => $request->user()->email,
+            'is_super_admin'    => $request->user()->isAdministrator(),
+            'token'             => $request->user()->createToken('apiToken', $listAbilities)->plainTextToken,
+            'email_verified_at' => $request->user()->email_verified_at,
         ];
 
         return response()->json($data);
@@ -132,7 +131,7 @@ class AuthenticatedSessionController extends Controller
         $request->user()->tokens()->delete();
 
         $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
-        $listAbilities  = [];
+        $listAbilities = [];
 
         foreach ($modelAbilities as $ability) {
             $listAbilities[] = $ability['name'];

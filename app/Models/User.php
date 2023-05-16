@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -40,6 +41,7 @@ class User extends Authenticatable implements TwoFactorAuthenticatable, MustVeri
      * @var array<int, string>
      */
     protected $fillable = [
+        'id',
         'username',
         'email',
         'password',
@@ -64,6 +66,11 @@ class User extends Authenticatable implements TwoFactorAuthenticatable, MustVeri
     public function abilities(): BelongsToMany
     {
         return $this->belongsToMany(Ability::class, 'user_abilities');
+    }
+
+    public function twoFactor(): HasOne
+    {
+        return $this->hasOne(TwoFactor::class, 'authenticatable_id', 'id');
     }
 
     public function isAdministrator(): bool
