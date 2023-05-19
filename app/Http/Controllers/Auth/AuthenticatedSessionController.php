@@ -123,26 +123,4 @@ class AuthenticatedSessionController extends Controller
 
         return response()->noContent();
     }
-
-    public function prolongationSession(Request $request): JsonResponse
-    {
-        $request->session()->migrate();
-
-        $request->user()->tokens()->delete();
-
-        $modelAbilities = $request->user()->abilities()->orderBy('name')->get(['name'])->toArray();
-        $listAbilities = [];
-
-        foreach ($modelAbilities as $ability) {
-            $listAbilities[] = $ability['name'];
-        }
-
-        $token = $request->user()->createToken('apiToken', $listAbilities);
-
-        return response()->json(
-            [
-                'token' => $token->plainTextToken,
-            ]
-        );
-    }
 }

@@ -26,7 +26,6 @@ class RedirectIfAuthenticated
             if (Auth::guard($guard)->check()) {
                 return $next($request);
             }
-            \Log::error('qwe');
         }
 
         return $next($request);
