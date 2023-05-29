@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\FormController;
 use App\Http\Controllers\StorageController;
 use App\Http\Controllers\SuccessStoryController;
 use App\Http\Controllers\UserController;
@@ -23,12 +24,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => ['auth:sanctum']], static function () {
     // Vacancies
-    Route::get('/vacancies', [VacancyController::class, 'index'])
-         ->name('vacancies');
-
-    Route::get('/vacancies/{id}', [VacancyController::class, 'show'])
-         ->name('vacancy-show');
-
     Route::post('/vacancies', [VacancyController::class, 'store'])
         ->middleware(['ability:create-vacancy'])
         ->name('create-vacancy');
@@ -83,12 +78,6 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
          ->name('view-permissions');
 
     // Blog
-    Route::get('/articles', [BlogController::class, 'index'])
-         ->name('articles');
-
-    Route::get('/articles/{id}', [BlogController::class, 'show'])
-         ->name('article-show');
-
     Route::post('/articles', [BlogController::class, 'store'])
          ->middleware(['ability:create-article'])
          ->name('create-article');
@@ -110,12 +99,6 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
          ->name('permanently-delete-article');
 
     // Success stories
-    Route::get('/success-stories', [SuccessStoryController::class, 'index'])
-         ->name('success-stories');
-
-    Route::get('/success-stories/{id}', [SuccessStoryController::class, 'show'])
-         ->name('success-stories-show');
-
     Route::post('/success-stories', [SuccessStoryController::class, 'store'])
          ->middleware(['ability:create-success-stories'])
          ->name('create-success-stories');
@@ -135,14 +118,35 @@ Route::group(['middleware' => ['auth:sanctum']], static function () {
     Route::delete('/success-stories/{id}', [SuccessStoryController::class, 'destroy'])
          ->middleware(['ability:permanently-delete-success-stories'])
          ->name('permanently-delete-success-stories');
-
-    // AWS s3
-    Route::post('/storage/upload-file', [StorageController::class, 'store'])
-         ->name('upload-file');
-
-    Route::post('/storage/delete-file', [StorageController::class, 'destroy'])
-         ->name('delete-file');
 });
+
+Route::get('/vacancies', [VacancyController::class, 'index'])
+     ->name('vacancies');
+
+Route::get('/vacancies/{id}', [VacancyController::class, 'show'])
+     ->name('vacancy-show');
+
+Route::get('/articles', [BlogController::class, 'index'])
+     ->name('articles');
+
+Route::get('/articles/{id}', [BlogController::class, 'show'])
+     ->name('article-show');
+
+Route::get('/success-stories', [SuccessStoryController::class, 'index'])
+     ->name('success-stories');
+
+Route::get('/success-stories/{id}', [SuccessStoryController::class, 'show'])
+     ->name('success-stories-show');
+
+Route::post('/send-email', [FormController::class, 'send'])
+     ->name('send-email');
+
+// AWS s3
+Route::post('/storage/upload-file', [StorageController::class, 'store'])
+     ->name('upload-file');
+
+Route::post('/storage/delete-file', [StorageController::class, 'destroy'])
+     ->name('delete-file');
 
 Route::post('/tokens/create', static function (Request $request) {
     if (!$request->user()) {

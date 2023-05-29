@@ -14,24 +14,32 @@ class StorageController extends Controller
     {
         $request->validate(
             [
-                'file' => ['required', 'image', 'max:2048']
+                'file' => ['required', 'mimes:jpeg,jpg,png,svg,pdf,doc,docx', 'max:2048']
             ]
         );
 
         if ($request->hasFile('file') && $request->file('file') instanceof UploadedFile) {
-            $file     = $request->file('file');
-            $name     = time() . '-' . $file->getClientOriginalName();
+            $file = $request->file('file');
+            $name = time() . '-' . $file->getClientOriginalName();
             $filePath = 'images/' . $name;
 
             $savedFile = Storage::put($filePath, file_get_contents($file->getRealPath()));
 
             if ($savedFile) {
-                $url             = getenv('AWS_ENDPOINT') . getenv('AWS_BUCKET') . '/';
+                $url = getenv('AWS_ENDPOINT') . getenv('AWS_BUCKET') . '/';
                 $storageFilePath = Storage::path($filePath);
 
                 \Log::info('File successful saved:', ['path' => $url . $storageFilePath]);
 
-                return response()->json(['message' => 'File success uploaded', 'full_path' => $url . $storageFilePath, 'relative_path' => $storageFilePath]);
+                return response()->json(
+                    [
+                        'message'       => 'File success uploaded',
+                        'full_path'     => $url . $storageFilePath,
+                        'relative_path' => $storageFilePath,
+                        'name'          => $file->getClientOriginalName(),
+                        'mime_type'     => $file->getClientMimeType()
+                    ]
+                );
             }
             throw new RuntimeException('Файл не был загружен, попробуйте позднее');
         }

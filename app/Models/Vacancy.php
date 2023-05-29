@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property boolean $active
  * @property string $announcement_text
  * @property string|null $detail_text
+ * @property string|null $banner_image
  * @property string $description
  * @property array $conditions
  * @property array|null $locations
@@ -49,6 +50,7 @@ class Vacancy extends Model
         'active',
         'announcement_text',
         'detail_text',
+        'banner_image',
         'description',
         'conditions',
         'locations',

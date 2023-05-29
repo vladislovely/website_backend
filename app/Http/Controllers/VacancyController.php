@@ -67,6 +67,7 @@ class VacancyController extends Controller
                     'active',
                     'announcement_text',
                     'detail_text',
+                    'banner_image',
                     'description',
                     'conditions',
                     'locations',
@@ -119,7 +120,7 @@ class VacancyController extends Controller
 
             $request->validate(
                 [
-                    'title'              => ['max:100', 'unique:vacancies,title'],
+                    'title'              => ['max:100'],
                     'active'             => ['bool'],
                     'announcement_text'  => ['string'],
                     'detail_text'        => ['nullable', 'string'],
@@ -146,6 +147,7 @@ class VacancyController extends Controller
                     [
                         'title',
                         'detail_text',
+                        'banner_image',
                         'active',
                         'announcement_text',
                         'description',

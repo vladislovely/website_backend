@@ -20,6 +20,7 @@ return new class extends Migration
                 $table->boolean('active');
                 $table->text('announcement_text');
                 $table->text('detail_text')->nullable();
+                $table->string('banner_image', 100)->nullable();
                 $table->text('description');
                 $table->boolean('remote_format');
                 $table->json('conditions');
@@ -30,10 +31,10 @@ return new class extends Migration
                 $table->json('technologies');
                 $table->json('specialisations');
                 $table->json('offer_timeline')->nullable();
-                $table->json('vacancy_type', 30);
-                $table->json('work_schedule', 30);
-                $table->json('type_of_employment', 30);
-                $table->json('work_experience', 30);
+                $table->json('vacancy_type');
+                $table->json('work_schedule');
+                $table->json('type_of_employment');
+                $table->json('work_experience');
                 $table->json('salary')->nullable();
                 $table->softDeletes();
                 $table->timestamps();
