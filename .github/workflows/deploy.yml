@@ -1,0 +1,24 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - production
+      - development
+  pull_request:
+    branches:
+      - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to production
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: 'cd /var/www/website_backend && ./.scripts/server_deploy.sh'
